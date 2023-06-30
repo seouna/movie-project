@@ -6,8 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<link href="css/inc.css" rel="stylesheet">
-<link href="css/common.css" rel="stylesheet">
+<link href="${path }/resources/css/inc.css" rel="stylesheet">
+<link href="${path }/resources/css/common.css" rel="stylesheet">
 </head>
 <body>
 	<!-- 푸터! -->
