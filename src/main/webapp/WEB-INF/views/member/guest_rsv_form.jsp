@@ -76,6 +76,7 @@ function modalClose(){
 					<button type="submit" class="btn-type0 mb50">비회원 예약확인</button>
 				</form>
 			</div>
+			
 		</div>
 		<!-- 비회원 비밀번호 찾기 모달창 -->
 		<div class="modal modal-type2" id="findPwd" tabindex="-1" style="display: none;">

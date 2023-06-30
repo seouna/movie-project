@@ -27,7 +27,7 @@
 		</div>
 		<div class="tabs-cont">
 			<div class="cont">
-				<form id="joinForm" name="joinForm" method="post" autocomplete="off">
+				<form id="joinForm" name="joinForm" method="post" autocomplete="off" action="guestJoinPro">
 					<input type="hidden" id="cgid" name="cgid" value="">
 		<!-- 					이름 생년월일 휴대폰번호 인증요청 -->
 
@@ -37,13 +37,13 @@
 									 <span></span>
 								</label>
 							</div>
-					<div class="guest-join-detail">
-								<label class="label-input" for="memberBirth"> <span>생년월일</span>
-									<input type="text" id="memberBirth" name="guestBday"
-									class="input input-numeric" placeholder="예) 20170101" maxlength="8">
-									<span></span>
-								</label>
-							</div>
+<!-- 					<div class="guest-join-detail"> -->
+<!-- 								<label class="label-input" for="memberBirth"> <span>생년월일</span> -->
+<!-- 									<input type="text" id="memberBirth" name="guestBday" -->
+<!-- 									class="input input-numeric" placeholder="예) 20170101" maxlength="8"> -->
+<!-- 									<span></span> -->
+<!-- 								</label> -->
+<!-- 							</div> -->
 					<div class="guest-join-detail">
 						<label class="label-input" for="memberPhone"> <span>휴대폰번호</span>
 							<input type="text" id="memberPhone" name="phone"
@@ -61,6 +61,12 @@
 						<span>비밀번호 확인</span> 
 						<input type="password" id="join-pw2" name="password2" class="input" placeholder="위에 입력한 비밀번호를 다시 입력해주세요">
 						<span></span>
+						</label>
+					</div>
+					<div class="guest-join-detail">
+						<label class="label-input" for="memberEmail"> <span>E-mail</span>
+							<input type="text" id="memberEmail" name="email"
+							class="input" placeholder="이메일 입력"> <span></span>
 						</label>
 					</div>
 					

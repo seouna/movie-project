@@ -5,11 +5,144 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<link href="resources/css/common.css" rel="stylesheet">
-<link href="resources/css/inc.css" rel="stylesheet">
-<link href="resources/css/sub.css" rel="stylesheet">
+<link href="${pageContext.request.contextPath }/resources/css/common.css" rel="stylesheet">
+<link href="${pageContext.request.contextPath }/resources/css/inc.css" rel="stylesheet">
+<link href="${pageContext.request.contextPath }/resources/css/sub.css" rel="stylesheet">
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script type="text/javascript" src="resources/js/main.js"></script>
+<script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+<script type="text/javascript">
+	
+	// 아임포트 결제
+	var IMP = window.IMP; 
+	IMP.init("imp03276613"); 
+	
+	function requestPay() {
+		
+		// 포인트 전액 사용시
+		if($("#lstPayAmtView").text() == "0") {
+			if(confirm("포인트 전액 구매시, 환불이 불가합니다. 결제 하시겠습니까?")) {
+				location.href = "store_paySuccess?pay_code=code" + new Date().getTime() + "&pay_type=point" 
+				+ "&pay_price=0"
+				+ "&pay_status=paid" + "&item_code=" + ${item.get('item_code')} 
+				+ "&point=" + $("#totDcAmtView").text();
+			} else {
+				return;
+			}
+			
+		} else {
+			// 결제 수단 선택
+			if($('input[name="radio_choice"]:checked').val() == null) {
+				alert("결제수단을 선택하세요.");
+
+				// 이용약관 동의
+			} else if(!$("#chk01").prop("checked") || !$("#chk02").prop("checked")) {
+				alert("이용약관에 모두 동의하셔야 합니다.");
+				
+				// 아임포트 결제
+			} else {
+				IMP.request_pay({
+			        pg : $('input[name="radio_choice"]:checked').val(),
+			        pay_method : 'card',
+			        merchant_uid: "code" + new Date().getTime(), 
+			        name : '${item.get('item_name') }',
+			        amount : $("#lstPayAmtView").text(),
+			        buyer_email : '${member.get('member_email')}',
+			        buyer_name : '${member.get('member_name')}',
+			        buyer_tel : '${member.get('member_tel')}',
+			        
+			    }, function (rsp) { // callback
+			        if (rsp.success) {
+					    alert("결제가 완료되었습니다.");
+					    location.href = "store_paySuccess?pay_code=" + rsp.merchant_uid + "&pay_type=" 
+					    				+ rsp.pay_method + "&pay_price=" + rsp.paid_amount
+					    				+ "&pay_status=" + rsp.status + "&item_code=" + ${item.get('item_code')} 
+					    				+ "&point=" + $("#totDcAmtView").text();
+			        } else {
+			            alert("실패 : 코드" + rep.error_code + ") / 메세지()"
+			            	  + rsp.error_msg + ")");
+			        }
+			    });
+			}
+		}
+		
+	    
+	};
+
+// 항상 전액 사용하기
+$(function() {
+	
+	var userInputPoint = getCookie("userInputPoint");// 쿠기값 가져오기
+    
+	// 쿠키 있을 시, 저장하기 체크 상태
+    if(userInputPoint != ""){ 
+        $("#savePoint").attr("checked", true);
+        if(${item_price} < ${point}) {
+    		$("#pointNumber").val(${item_price});
+    		$("#totDcAmtView").text($("#pointNumber").val());
+    		$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+    	} else {
+    		$("#pointNumber").val(${point});
+    		$("#totDcAmtView").text($("#pointNumber").val());
+    		$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+    	}
+    }
+	
+	// 항상 저장하기 클릭 시.
+	$("#savePoint").on("click", function() {
+		if($(this).is(":checked")) {
+			var userInputPoint = ${point};
+            setCookie("userInputPoint", userInputPoint, 7); // 7일 보관
+            if(${item_price} < ${point}) {
+				$("#pointNumber").val(${item_price});
+				$("#totDcAmtView").text($("#pointNumber").val());
+				$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+			} else {
+				$("#pointNumber").val(${point});
+				$("#totDcAmtView").text($("#pointNumber").val());
+				$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+			}
+		} else {
+			$("#pointNumber").val("");
+			$("#totDcAmtView").text("");
+			$("#lstPayAmtView").text(${item_price });
+			var userInputPoint = "";
+            setCookie("userInputPoint", userInputPoint, 7); // 7일 보관
+		}
+		
+	});
+	
+    function setCookie(cookieName, value, exdays){
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + exdays);
+        var cookieValue = escape(value) + ((exdays==null) ? "" : "; expires=" + exdate.toGMTString());
+        document.cookie = cookieName + "=" + cookieValue;
+    }
+     
+    function deleteCookie(cookieName){
+        var expireDate = new Date();
+        expireDate.setDate(expireDate.getDate() - 1);
+        document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+    }
+     
+    function getCookie(cookieName) {
+        cookieName = cookieName + '=';
+        var cookieData = document.cookie;
+        var start = cookieData.indexOf(cookieName);
+        var cookieValue = '';
+        if(start != -1){
+            start += cookieName.length;
+            var end = cookieData.indexOf(';', start);
+            if(end == -1)end = cookieData.length;
+            cookieValue = cookieData.substring(start, end);
+        }
+        return unescape(cookieValue);
+    }
+	
+	
+	
+});
+</script>
 </head>
 <body>
 <jsp:include page="../nav.jsp" />
@@ -44,13 +177,13 @@
                             <td class="a-c">
                                 <div class="goods-info">
                                     
-                                    <p class="img"><a href="javascript:fn_storeDetail();" title="메가박스 기프트카드 2만원권"><img src="https://img.megabox.co.kr/SharedImg/store/2022/09/02/OLQpuZPJ5wuIR9BqZK4sDRKN0t2O3sWV_280.png" alt="" onerror="noImg(this);"></a></p>
+                                    <p class="img"><a href="store_detail?item_code=${item.get('item_code') }" title="메가박스 기프트카드 2만원권"><img src="${item.get('item_image') }" alt="" onerror="noImg(this);"></a></p>
                                 </div>
                             </td>
                             <th scope="row">
                                 <div class="goods-info">
-                                    <p class="name"><a href="javascript:fn_storeDetail();" title="메가박스 기프트카드 2만원권">메가박스 기프트카드 2만원권</a></p>
-                                    <p class="bundle">메가박스 기프트카드 2만원권</p>
+                                    <p class="name"><a href="store_detail?item_code=${item.get('item_code') }" title="메가박스 기프트카드 2만원권">${item.get('item_name') }</a></p>
+                                    <p class="bundle">${item.get('item_detail') }</p>
                                 </div>
 
                                 <div class="mt10">
@@ -60,10 +193,10 @@
                             <td>
                                                         <a href="#" class="a-link" name="brchList" title="사용가능극장 확인">사용가능극장 확인</a>
                             </td>
-                            <td><em id="purcQtyView">1</em></td>
+                            <td><em id="purcQtyView">${item_count }</em></td>
                             <td>
                                 <div class="goods-info">
-	                                    	<em id="prdtSumAmtView" class="price">20,000</em>원
+	                                    	<em id="prdtSumAmtView" class="price">${item_price }</em>원
                                 </div>
                             </td>
                         </tr>
@@ -118,6 +251,38 @@
 			<!-- 결제수단 포인트 끝 -->
             
 			<!-- 포인트 영역 -->
+			<div class="c_order_point">
+			<div class="c_order_title">
+				<h3 class="tit"><span class="icon icon_point"></span><span class="txt">포인트</span></h3>
+			</div>
+			<div class="order_point_type">
+				<dl class="box_point_switch">
+						<div class="point_type input_type" >
+							<dt>
+								<span class="imoviePoint">IMOVIE POINT</span>
+							</dt>
+							<dd>
+								<div class="input_wrap">
+									<p class="input_payment">
+										<input type="text" class="number" id="pointNumber" name="pointNumber" >
+										<span class="unit">원</span>
+									</p>
+									<p class="input_payment">
+										<button type="button" class="btn_payment" id="pointAll">전액사용</button>
+									</p>
+									<p class="info">사용가능 <span id="" class="number">${point }</span><span>P</span></p>
+									<p class="input_payment">
+										<label class="c_order_checkbox">
+											<input type="checkbox" id="savePoint" name="all_pay" style="display: none"><span>항상 전액사용</span>
+										</label>
+									</p>
+								</div>
+							</dd>
+						</div>
+					</dl>
+			</div>
+		</div>
+			
 			
 			<!-- 포인트 영역 끝 -->
 
@@ -129,17 +294,16 @@
 		                    <div class="cell all">
 		                        <p class="txt">총 상품금액</p>
 		                        <p class="price">
-		                            <em id="totPrdtAmtView">20,000</em>
+		                            <em id="totPrdtAmtView">${item_price }</em>
 		                            <span>원</span>
 		                        </p>
 		                    </div>
 		                    <i class="iconset ico-circle-minus">빼기</i>
 
 		                    <div class="cell sale">
-		                        <p class="txt">할인금액</p>
 		                        <p class="price">
-		                            <em id="totDcAmtView">0</em>
-		                            <span>원</span>
+		                        <p class="txt">포인트 사용하기</p>
+		                            <em id="totDcAmtView"></em>
 		                        </p>
 		                    </div>
 		                    <i class="iconset ico-circle-equal">등호</i>
@@ -147,11 +311,25 @@
 		                    <div class="cell real">
 		                        <p class="txt">최종 결제금액</p>
 		                        <p class="price">
-		                            <em id="lstPayAmtView">20,000</em>
+		                            <em id="lstPayAmtView">${item_price }</em>
 		                            <span>원</span>
 		                        </p>
 		                    </div>
 		                </div>
+		                <div class="choice">
+                            <div class="inbox">
+                                <p class="txt">결제수단 선택</p>
+                                    <div class="cell">
+                                        <input type="radio" id="radio_choice01" name="radio_choice" value="html5_inicis.INIBillTst">
+                                        <label for="radio_choice01">신용/체크카드</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="radio" id="radio_choice01" name="radio_choice" value="kakaopay.TC0ONETIME">
+                                        <label for="radio_choice01">카카오페이</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="radio" id="radio_choice01" name="radio_choice" value="tosspay.tosstest">
+                                        <label for="radio_choice01">토스페이</label>
+                                    </div>
+                            </div>
+		                </div>
+                        </div>
 
                         <!-- 결제수단 별 알림문구 -->
                         <div class="select-mobile-info" style="display:none;padding-top:20px;width:640px;margin:auto;">
@@ -222,7 +400,7 @@
                             <label for="all_chk" class="">주문할 상품 정보 및 이용약관 모두 동의하시겠습니까? <span class="fr">[필수]</span></label>
                         </div>
 
-                        <div class="block first">
+                        <div class="block">
                             <div class="chk">
                                 <input type="checkbox" id="chk01" value="CLUV09" data-version="1.0">
                                 <label for="chk01">개인정보 판매자 제공 동의 <span class="fr">[필수]</span></label>
@@ -302,7 +480,7 @@
 
             <div class="btn-group pt40">
                 <a href="store_main" class="button large w170px" id="btn_store_back" title="취소">취소</a>
-                <a href="#" class="button purple large w170px btn-modal-open" id="btn_store_pay_adapter" title="결제">결제</a>
+                <input type="button" onclick="requestPay()" value="결제" class="button purple large w170px btn-modal-open" id="btn_store_pay_adapter">
                 <a href="#" class="button purple large w170px btn-modal-open" id="btn_store_pay" title="결제" style="display: none;" w-data="600" h-data="400">결제</a>
 				<!--
                 <a href="javascript:execStorePayment();" class="button purple large w170px">결제테스트</a>
@@ -314,18 +492,373 @@
         <!--// store-payment -->
     </div>
 </div>
+<!-- 모달창 -->
+<section id="layer_chk_theater" class="modal-layer" style="z-index: 505;">
+<div class="wrap" style="width: 600px; height: 530px; margin-left: -300px; margin-top: -265px;">
+	<header class="layer-header">
+		<h3 class="tit">사용가능극장 </h3>
+	</header>
+	<!-- layer-con -->
+	<div class="layer-con" style="height: 485px;">
+		<!-- layer-goods-theater -->
+		<div class="layer-goods-theater">
+			<p class="txt">선택하신 상품의 사용가능한 극장입니다.</p>
+			<div class="area">
+				<ul class="modalTab">
+						<li class="on">
+							<button type="button" class="btn">서울 (19)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>강남</li>
+									
+										<li>강남대로(씨티)</li>
+									
+										<li>강동</li>
+									
+										<li>군자</li>
+									
+										<li>더 부티크 목동현대백화점</li>
+									
+										<li>동대문</li>
+									
+										<li>마곡</li>
+									
+										<li>목동</li>
+									
+										<li>상봉</li>
+									
+										<li>상암월드컵경기장</li>
+									
+										<li>성수</li>
+									
+										<li>센트럴</li>
+									
+										<li>송파파크하비오</li>
+									
+										<li>신촌</li>
+									
+										<li>이수</li>
+									
+										<li>창동</li>
+									
+										<li>코엑스</li>
+									
+										<li>홍대</li>
+									
+										<li>화곡</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">경기 (30)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>고양스타필드</li>
+									
+										<li>광명AK플라자</li>
+									
+										<li>광명소하</li>
+									
+										<li>금정AK플라자</li>
+									
+										<li>김포한강신도시</li>
+									
+										<li>남양주</li>
+									
+										<li>남양주현대아울렛 스페이스원</li>
+									
+										<li>동탄</li>
+									
+										<li>미사강변</li>
+									
+										<li>백석벨라시타</li>
+									
+										<li>별내</li>
+									
+										<li>부천스타필드시티</li>
+									
+										<li>분당</li>
+									
+										<li>수원</li>
+									
+										<li>수원남문</li>
+									
+										<li>수원호매실</li>
+									
+										<li>시흥배곧</li>
+									
+										<li>안산중앙</li>
+									
+										<li>안성스타필드</li>
+									
+										<li>양주</li>
+									
+										<li>영통</li>
+									
+										<li>용인기흥</li>
+									
+										<li>용인테크노밸리</li>
+									
+										<li>의정부민락</li>
+									
+										<li>일산</li>
+									
+										<li>킨텍스</li>
+									
+										<li>파주금촌</li>
+									
+										<li>파주운정</li>
+									
+										<li>파주출판도시</li>
+									
+										<li>하남스타필드</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">인천 (5)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>검단</li>
+									
+										<li>송도</li>
+									
+										<li>영종</li>
+									
+										<li>인천논현</li>
+									
+										<li>청라지젤</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">대전/충청/세종 (15)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>공주</li>
+									
+										<li>논산</li>
+									
+										<li>대전</li>
+									
+										<li>대전신세계 아트앤사이언스</li>
+									
+										<li>대전유성</li>
+									
+										<li>대전중앙로</li>
+									
+										<li>대전현대아울렛</li>
+									
+										<li>세종(조치원)</li>
+									
+										<li>세종나성</li>
+									
+										<li>세종청사</li>
+									
+										<li>오창</li>
+									
+										<li>진천</li>
+									
+										<li>천안</li>
+									
+										<li>청주사창</li>
+									
+										<li>홍성내포</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">부산/대구/경상 (26)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>경북도청</li>
+									
+										<li>경산하양</li>
+									
+										<li>경주</li>
+									
+										<li>구미강동</li>
+									
+										<li>김천</li>
+									
+										<li>남포항</li>
+									
+										<li>대구신세계(동대구)</li>
+									
+										<li>대구이시아</li>
+									
+										<li>덕천</li>
+									
+										<li>마산</li>
+									
+										<li>문경</li>
+									
+										<li>부산극장</li>
+									
+										<li>부산대</li>
+									
+										<li>북대구(칠곡)</li>
+									
+										<li>사상</li>
+									
+										<li>삼천포</li>
+									
+										<li>양산</li>
+									
+										<li>양산증산</li>
+									
+										<li>울산</li>
+									
+										<li>정관</li>
+									
+										<li>진주(중안)</li>
+									
+										<li>창원</li>
+									
+										<li>창원_P</li>
+									
+										<li>창원내서</li>
+									
+										<li>포항</li>
+									
+										<li>해운대(장산)</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">광주/전라 (10)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>광주상무</li>
+									
+										<li>광주하남</li>
+									
+										<li>목포하당(포르모)</li>
+									
+										<li>순천</li>
+									
+										<li>여수웅천</li>
+									
+										<li>전대(광주)</li>
+									
+										<li>전주객사</li>
+									
+										<li>전주송천</li>
+									
+										<li>전주혁신</li>
+									
+										<li>첨단</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">강원 (5)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+										<li>남춘천</li>
+									
+										<li>속초</li>
+									
+										<li>원주</li>
+									
+										<li>원주센트럴</li>
+									
+										<li>춘천석사</li>
+									
+								</ul>
+							</div>
+						</li>
+					
+						<li>
+							<button type="button" class="btn">제주 (0)</button>
+							<div class="cont">
+								<ul class="dot-list">
+									
+								</ul>
+							</div>
+						</li>
+					
+				</ul>
+			</div>
+			<p class="mt20 a-c">* 사용가능극장은 당사의 사정에 의해 변경될 수 있습니다.</p>
+		</div>
+	</div>
+
+	<button type="button" class="btn-modal-close">레이어 닫기</button>
+</div>
+</section>
 	<script>
 		$(function() {
-			$('.block first').click(function() {
-				$('.block').removeClass('on');
-				$(this).addClass('on');
-			})
 			
+			// 전액사용
+			$("#pointAll").on("click", function() {
+				if(${item_price} < ${point}) {
+					$("#pointNumber").val(${item_price});
+					$("#totDcAmtView").text($("#pointNumber").val());
+					$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+				} else {
+					$("#pointNumber").val(${point});
+					$("#totDcAmtView").text($("#pointNumber").val());
+					$("#lstPayAmtView").text(${item_price } - $("#pointNumber").val());
+				}
+			});
+			
+			// 포인트 입력
+			$("#pointNumber").on("change", function() {
+				if($(this).val() <= ${point}) {
+					$("#totDcAmtView").text($(this).val());
+					$("#lstPayAmtView").text(${item_price } - $(this).val());
+				} else {
+					alert("사용가능 포인트를 확인하세요.");
+				}
+			});
+			
+			// 모달창 목록
+			$('ul.modalTab li').click(function() {
+				$('ul.modalTab li').removeClass('on');
+				$(this).addClass('on');
+			});
+			
+			// 모달창 취소
+			$('.btn-modal-close').on("click", function() {
+				$('#layer_chk_theater').removeClass('on');
+			});
+			
+			// 모달창 클릭
+			$('.a-link').on("click", function() {
+				$('#layer_chk_theater').addClass('on');
+			});
+			
+			// 하단 박스 클릭
 			$('.block').click(function() {
-				$('.block first').removeClass('on');
-				$(this).addClass('on');
-			})
+				if($(this).attr('class') == 'block on') {
+					$('.block').removeClass('on');
+                } else if($(this).attr('class') == 'block') {
+                	$('.block').removeClass('on');
+					$(this).addClass('on');
+                }
+			});
 			
+			// 하단 박스 모두체크
 			$("#all_chk").on("click", function () {
 				  var checked = $(this).is(":checked");
 				  if(checked){
@@ -335,15 +868,7 @@
 					  $("#chk01").prop("checked", false);
 					  $("#chk02").prop("checked", false);
 				  }
-			})
-			
-			$("#btn_store_pay_adapter").on("click", function() {
-				if(!$("#chk01").prop("checked") && !$("#chk02").prop("checked")) {
-					alert("이용약관에 모두 동의하셔야 합니다.");
-				}
-				
-			})
-			
+			});
 			
 		});
 	</script>

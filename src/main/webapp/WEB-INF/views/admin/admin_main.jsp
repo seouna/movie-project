@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +10,21 @@
 <meta name="description" content="" />
 <meta name="author" content="" />
 <title>아이무비관리자페이지</title>
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+<link
+	href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
+	rel="stylesheet" />
 <link href="resources/css/styles.css" rel="stylesheet" />
-<script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+<script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
+	crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
+
+	<c:if test="${sessionScope.sId  ne 'admin' }">
+		<script type="text/javascript">
+			alert("잘못된 접근입니다!");
+			location.href = "./";
+		</script>
+	</c:if>
 	<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
 		<!-- Navbar Brand-->
 		<a class="navbar-brand ps-3" href="admin">IMOVIE</a>
@@ -23,26 +34,27 @@
 			<i class="fas fa-bars"></i>
 		</button>
 		<!-- Navbar Search-->
-		<form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+		<form
+			class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
 		</form>
 		<!-- Navbar-->
 		<ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-			<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<i class="fas fa-user fa-fw"></i>
-				</a>
+			<li class="nav-item dropdown"><a
+				class="nav-link dropdown-toggle" id="navbarDropdown" href="#"
+				role="button" data-bs-toggle="dropdown" aria-expanded="false"> <i
+					class="fas fa-user fa-fw"></i>
+			</a>
 				<ul class="dropdown-menu dropdown-menu-end"
 					aria-labelledby="navbarDropdown">
 					<li><a class="dropdown-item" href="main">홈</a></li>
 					<li><hr class="dropdown-divider" /></li>
 					<li><a class="dropdown-item" href="logout">Logout</a></li>
-				</ul>
-			</li>
+				</ul></li>
 		</ul>
 	</nav>
 	<div id="layoutSidenav">
 		<!-- 고정  -->
-		<jsp:include page="admin_nav.jsp"/>
+		<jsp:include page="admin_nav.jsp" />
 		<!-- 고정 -->
 		<div id="layoutSidenav_content">
 			<main>
@@ -54,10 +66,12 @@
 					<div class="row">
 						<div class="col-xl-3 col-md-6">
 							<div class="card bg-primary text-black mb-4">
-								<div class="card-body font20"> TODAY 예매<br> <span class="fontB">50</span>건 </div>
+								<div class="card-body font20">
+									TODAY 예매<br> <span class="fontB">${resCount }</span>건
+								</div>
 								<div
 									class="card-footer d-flex align-items-center justify-content-between">
-									<a class="small text-black stretched-link" href="#">더보기</a>
+									<a class="small text-black stretched-link" href="resList">더보기</a>
 									<div class="small text-black">
 										<svg class="svg-inline--fa fa-angle-right" aria-hidden="true"
 											focusable="false" data-prefix="fas" data-icon="angle-right"
@@ -72,9 +86,14 @@
 						</div>
 						<div class="col-xl-3 col-md-6">
 							<div class="card bg-warning text-black mb-4">
-								<div class="card-body font20">TODAY 상영 영화<br><span class="fontB">6</span> 건</div>
-								<div class="card-footer d-flex align-items-center justify-content-between">
-									<a class="small text-black stretched-link" href="#">더보기</a>
+								<div class="card-body font20">
+									TODAY 상영 영화<br>
+									<span class="fontB">${todayCount }</span> 건
+									
+								</div>
+								<div
+									class="card-footer d-flex align-items-center justify-content-between">
+									<a class="small text-black stretched-link" href="admin_schedule_register">더보기</a>
 									<div class="small text-black">
 										<svg class="svg-inline--fa fa-angle-right" aria-hidden="true"
 											focusable="false" data-prefix="fas" data-icon="angle-right"
@@ -89,10 +108,12 @@
 						</div>
 						<div class="col-xl-3 col-md-6">
 							<div class="card bg-success text-black mb-4">
-								<div class="card-body font20">스토어 주문<br> <span class="fontB">80</span> 건</div>
+								<div class="card-body font20">
+									스토어 주문<br> <span class="fontB">${payCount }</span> 건
+								</div>
 								<div
 									class="card-footer d-flex align-items-center justify-content-between">
-									<a class="small text-black stretched-link" href="#">더보기</a>
+									<a class="small text-black stretched-link" href="admin_item_pay">더보기</a>
 									<div class="small text-black">
 										<svg class="svg-inline--fa fa-angle-right" aria-hidden="true"
 											focusable="false" data-prefix="fas" data-icon="angle-right"
@@ -107,7 +128,9 @@
 						</div>
 						<div class="col-xl-3 col-md-6">
 							<div class="card bg-danger text-black mb-4">
-								<div class="card-body font20">회원수<br> <span class="fontB">593</span>명</div>
+								<div class="card-body font20">
+									회원수<br> <span class="fontB">${memCount }</span>명
+								</div>
 								<div
 									class="card-footer d-flex align-items-center justify-content-between">
 									<a class="small text-black stretched-link" href="#">더보기</a>
@@ -139,19 +162,12 @@
 							<div
 								class="datatable-wrapper datatable-loading no-footer sortable searchable fixed-columns">
 								<div class="datatable-top">
-									<div class="datatable-dropdown">
-										<label> <select class="datatable-selector"><option
-													value="5">5</option>
-												<option value="10" selected="">10</option>
-												<option value="15">15</option>
-												<option value="20">20</option>
-												<option value="25">25</option></select> 명
-										</label>
-									</div>
-									<div class="datatable-search">
-										<input class="datatable-input" placeholder="회원정보를 입력하세요"
-											type="search" title="Search within table"
-											aria-controls="datatablesSimple">
+									<div class="datatable-search" style="width: 348px;float: left;display: inline-block;">
+										<form action="admin">
+											<input class="datatable-input" placeholder="회원정보를 입력하세요" value="${param.searchKeyword }" name="searchKeyword" type="search" title="Search within table" aria-controls="datatablesSimple" style="width: 210px;">
+											 <input type="submit" value="검색" />
+											<input type="button" value="전체보기" onclick="location.href='admin'">
+										</form>
 									</div>
 								</div>
 								<!-- 회원정보 테이블 -->
@@ -159,64 +175,101 @@
 									<table id="datatablesSimple" class="datatable-table">
 										<thead>
 											<tr>
-												<th data-sortable="true" style="width: 7%;"><a
-													href="#" class="datatable-sorter">회원번호</a></th>
 												<th data-sortable="true" style="width: 10%;"><a
 													href="#" class="datatable-sorter">아이디</a></th>
 												<th data-sortable="true" style="width: 10%;"><a
 													href="#" class="datatable-sorter">이름</a></th>
 												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">생년월일</a></th>
-												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">휴대폰번호</a></th>
-												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">선호지점</a></th>
-												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">선호장르</a></th>
-												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">소셜가입</a></th>	
-												<th data-sortable="true" style="width: 10%;"><a
-													href="#" class="datatable-sorter">가입일자</a></th>
-													
+													href="#" class="datatable-sorter">이메일</a></th>
+												<th data-sortable="true" style="width: 10%;">
+													<a href="#" class="datatable-sorter">휴대폰번호</a>
+												</th>
+												<th data-sortable="true" style="width: 10%;">
+													<a href="#" class="datatable-sorter">포인트</a>
+												</th>
+												<th data-sortable="true" style="width: 10%;">
+													<a href="#" class="datatable-sorter">선호지점</a>
+												</th>
+												<th data-sortable="true" style="width: 10%;">
+													<a href="#" class="datatable-sorter">선호장르</a>
+												</th>
+												<th data-sortable="true" style="width: 10%;">
+													<a href="#" class="datatable-sorter">가입일자</a>
+												</th>
 											</tr>
 										</thead>
 										<!-- 회원목록 -->
-										<tbody>
-											<tr data-index="0">
-												<td>1</td>
-												<td>admin</td>
-												<td>관리자</td>
-												<td>20230404</td>
-												<td>01012341561</td>
-												<td>서면</td>
-												<td>스릴러</td>
-												<td>카카오톡</td>
-												<td>20230404</td>
-
-											</tr>
-										</tbody>
+										<c:forEach var="member" items="${memberList }">
+											<tbody>
+												<tr data-index="0">
+													<td>${member.get("member_id") }</td>
+													<td>${member.get("member_name") }</td>
+													<td>${member.get("member_email") }</td>
+													<td>${member.get("member_tel") }</td>
+													<td>${member.get("member_point") }</td>
+													<td>${member.get("member_prefer_branch") }</td>
+													<td>${member.get("member_prefer_genre") }</td>
+													<td>${member.get("member_date") }</td>
+												</tr>
+											</tbody>
+										</c:forEach>
 									</table>
 								</div>
+								<!-- 페이징처리 -->
 								<div class="datatable-bottom">
 									<nav class="datatable-pagination">
 										<ul class="datatable-pagination-list">
-											<li
-												class="datatable-pagination-list-item datatable-hidden datatable-disabled"><a
-												data-page="1" class="datatable-pagination-list-item-link">‹</a></li>
-											<li class="datatable-pagination-list-item datatable-active"><a
-												data-page="1" class="datatable-pagination-list-item-link">1</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="2" class="datatable-pagination-list-item-link">2</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="3" class="datatable-pagination-list-item-link">3</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="4" class="datatable-pagination-list-item-link">4</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="5" class="datatable-pagination-list-item-link">5</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="6" class="datatable-pagination-list-item-link">6</a></li>
-											<li class="datatable-pagination-list-item"><a
-												data-page="2" class="datatable-pagination-list-item-link">›</a></li>
+											<c:choose>
+												<c:when test="${empty param.pageNum }">
+													<c:set var="pageNum" value="1" />
+												</c:when>
+												<c:otherwise>
+													<c:set var="pageNum" value="${param.pageNum }"></c:set>
+												</c:otherwise>
+											</c:choose>
+
+											<!-- 							 datatable-disabled -->
+											<c:choose>
+												<c:when test="${pageNum > 1 }">
+													<li class="datatable-pagination-list-item datatable-hidden"
+														onclick="location.href='admin?pageNum=${pageNum - 1}'">
+														<a data-page="${pageNum } class="datatable-pagination-list-item-link">‹</a>
+													</li>
+												</c:when>
+												<c:otherwise>
+													<li class="datatable-pagination-list-item datatable-hidden">
+														<a data-page="${pageNum } class="datatable-pagination-list-item-link">‹</a>
+													</li>
+												</c:otherwise>
+											</c:choose>
+											<c:forEach var="num" begin="${pageInfo.startPage }"
+												end="${pageInfo.endPage }">
+												<c:choose>
+													<c:when test="${pageNum eq num }">
+														<%-- 현재 페이지 번호일 경우 --%>
+														<li class="datatable-pagination-list-item "><a
+															class="datatable-pagination-list-item-link"
+															style="background-color: #ececec">${num }</a>
+													</c:when>
+													<%--페이지번호 --%>
+													<c:when test="${pageNum ne num and empty param.searchKeyword }">
+														<a href="admin?pageNum=${num }">${num }</a>
+													</c:when>
+												</c:choose>
+											</c:forEach>
+											<c:choose>
+												<c:when test="${pageNum < pageInfo.maxPage }">
+													<li class="datatable-pagination-list-item datatable-hidden"
+														onclick="location.href='admin?pageNum=${pageNum + 1}'">
+														<a data-page="${pageNum } class="datatable-pagination-list-item-link">›</a>
+													</li>
+												</c:when>
+												<c:otherwise>
+													<li class="datatable-pagination-list-item datatable-hidden">
+														<a data-page="${pageNum } class="datatable-pagination-list-item-link">›</a>
+													</li>
+												</c:otherwise>
+											</c:choose>
 										</ul>
 									</nav>
 								</div>
@@ -225,25 +278,29 @@
 					</div>
 				</div>
 			</main>
-			
 			<footer class="py-4 bg-light mt-auto">
 				<div class="container-fluid px-4">
 					<div
 						class="d-flex align-items-center justify-content-between small">
 						<div class="text-muted">Copyright &copy; IMOVIE 2023</div>
-						<div>
-						</div>
+						<div></div>
 					</div>
 				</div>
 			</footer>
 		</div>
 	</div>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+		crossorigin="anonymous"></script>
 	<script src="js/scripts.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
+		crossorigin="anonymous"></script>
 	<script src="assets/demo/chart-area-demo.js"></script>
 	<script src="assets/demo/chart-bar-demo.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+		crossorigin="anonymous"></script>
 	<script src="js/datatables-simple-demo.js"></script>
 </body>
 </html>

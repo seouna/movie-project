@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
 <meta name="author" content="" />
 <title>아이무비관리자페이지</title>
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-<link href="resources/css/styles.css" rel="stylesheet" />
+<link href="${pageContext.request.contextPath }/resources/css/styles.css" rel="stylesheet" />
 <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
@@ -59,6 +60,21 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">스토어 결제 관리</h3></div>
                                     <div class="card-body">
+                                    <div class="tabs-cont">
+										<div class="mb30">
+											<div class="inp-box1">
+												<form action="admin_item_pay">
+													<select class="selectBoxCSS" name="searchType">
+														<option value="pay_code" <c:if test="${param.searchType eq 'pay_code'}">selected</c:if>>결제코드</option>
+														<option value="member_id" <c:if test="${param.searchType eq 'member_id'}">selected</c:if>>아이디</option>
+														<option value="pay_date" <c:if test="${param.searchType eq 'pay_date'}">selected</c:if>>결제날짜</option>
+													</select>
+													<input type="text" name="searchKeyword" value="${param.searchKeyword }">
+													<input type="submit" class="btn btn-primary btn-block" value="검색" />
+												</form>
+											</div>
+										</div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -76,6 +92,8 @@
 								<th data-sortable="true" style="width: 10%;"><a
 									href="#" class="datatable-sorter">회원 아이디</a></th>
 								<th data-sortable="true" style="width: 10%;"><a
+									href="#" class="datatable-sorter">상품 코드</a></th>
+								<th data-sortable="true" style="width: 10%;"><a
 									href="#" class="datatable-sorter">결제 타입</a></th>
 								<th data-sortable="true" style="width: 10%;"><a
 									href="#" class="datatable-sorter">결제 가격</a></th>
@@ -91,19 +109,22 @@
 						</thead>
 						<!-- 회원목록 -->
 						<tbody>
+							<c:forEach var="pay" items="${pay }">
 							<tr data-index="0">
-								<td>!@#Dasd2asd334</td>
-								<td>admin</td>
-								<td>카드</td>
-								<td>20,000</td>
-								<td>2023-04-05</td>
-								<td></td>
-								<td>결제 완료</td>
+								<td>${pay.get('pay_code') }</td>
+								<td>${pay.get('member_id') }</td>
+								<td>${pay.get('item_code') }</td>
+								<td>${pay.get('pay_type') }</td>
+								<td>${pay.get('pay_price') }</td>
+								<td>${pay.get('pay_date') }</td>
+								<td>${pay.get('pay_cancel_date') }</td>
+								<td>${pay.get('pay_status') }</td>
 								<td>
-									<input class="btn btn-primary btn-block" type="button" value="수정">
-									<input class="btn btn-primary btn-block" type="button" value="삭제">
+									<input onclick="location.href='admin_item_payUpdate?pay_code=${pay.get('pay_code') }'"class="btn btn-primary btn-block" type="button" value="수정">
+									<input onclick="location.href='admin_pay_delete?pay_code=${pay.get('pay_code') }'" class="btn btn-primary btn-block"  type="button" value="삭제">
 								</td>
 							</tr>
+							</c:forEach>
 						</tbody>
 					</table>
 					
