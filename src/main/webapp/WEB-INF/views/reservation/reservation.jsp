@@ -325,6 +325,7 @@ var mvDay = "";		// 상영일
  			dataType: "json",
  			success: function(response) { 
  				console.log("moviesList : 요청처리성공");
+ 				console.log(response);
  				for(let movie of response) {
  					let movieTitle = movie.info_movie_title;
  					let movieCode = movie.info_movie_code;

@@ -23,7 +23,7 @@
 	<!-- 각 영화관에 상영하는 영화리스트 출력 -->
 	<!-- 영화제목, 영화코드, 포스터, 관람등급, 개봉일, 장르 -->
 	<select id="selectmoviesList" resultType="hashmap">
-		SELECT DISTINCT m.info_movie_title, m.info_movie_code, m.info_movie_poster, m.info_rating, m.info_showdate, m.info_genre
+ 		SELECT DISTINCT m.info_movie_title, m.info_movie_code, m.info_movie_poster, m.info_rating, m.info_showdate, m.info_genre
 			FROM 
 				cinema c
 			JOIN 
@@ -34,8 +34,10 @@
 				movieinfo m 
 			ON 
 				m.info_movie_code = s.sch_movie_code 
-			WHERE 
-				c.cinema_code = #{CnItemCd}
+			WHERE 1=1
+				and c.cinema_code = #{CnItemCd}
+				and m.info_status like 'screening'
+				or m.info_status like 'reScreening'
 	</select>
 	
 	<!-- 선호 장르 조회 -->
