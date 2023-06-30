@@ -349,7 +349,7 @@ function previewImage(targetObj, View_area) {
 				console.log(info_showdate)
 				//상영일 > 종영일 계산하기
 				var info_enddate = new Date(info_showdate);
-				info_enddate.setDate(info_enddate.getDate() + 100);
+				info_enddate.setDate(info_enddate.getDate() + 20);
 			    var dateObject = new Date(info_enddate);
 			    var isoDateString = dateObject.toISOString();				/// 리바운드 영화 넣었을때 오류 나는 부분 
 			    var formattedDateString = isoDateString.slice(0, 10);
