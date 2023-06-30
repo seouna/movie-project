@@ -438,7 +438,11 @@
 		FROM schedule
 		WHERE sch_movie_date = #{date}
 	</delete>
-
+	<select id="ended_screening" resultType="int">
+		SELECT count(*)
+			FROM schedule
+				WHERE sch_movie_date &gt; DATE_SUB(NOW(), INTERVAL 1 DAY);
+	</select>
 
 	<insert id="insertSchedule_end">
 		INSERT INTO schedule_end

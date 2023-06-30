@@ -122,5 +122,7 @@ public interface MovieRegisterMapper {
 	
 	int resTodayCount();
 
+	int ended_screening();
+
 
 }

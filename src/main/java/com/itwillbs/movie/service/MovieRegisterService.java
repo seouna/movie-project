@@ -230,6 +230,11 @@ public class MovieRegisterService {
 	public int resTodayCount() {
 		return mapper.resTodayCount();
 	}
+	
+	//종료된 상영목록이있는지 체크
+	public int ended_screening() {
+		return mapper.ended_screening();
+	}
 
 
 }

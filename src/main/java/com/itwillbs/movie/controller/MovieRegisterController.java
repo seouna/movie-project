@@ -457,10 +457,13 @@ public class MovieRegisterController {
 
 		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies();
 		List<HashMap<String, String>> cinemaList = movieRegisterService.selectCinema();
-
-		int insertCount = movieRegisterService.insertSchedule_end();
-		if (insertCount > 0) {
-			int delCount = movieRegisterService.endSchedule_del();
+		int ended_screening = movieRegisterService.ended_screening();
+		
+		if(ended_screening > 0) {
+			int insertCount = movieRegisterService.insertSchedule_end();
+			if (insertCount > 0) {
+				int delCount = movieRegisterService.endSchedule_del();
+			}
 		}
 		// 상영종료테이블에서LIST
 
