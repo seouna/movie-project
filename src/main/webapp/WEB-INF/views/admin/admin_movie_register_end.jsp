@@ -517,18 +517,15 @@ function previewImage(targetObj, View_area) {
 
 				<!-- 테이블 -->
 				<div class="datatable-container">
-					<h3 class="text-center font-weight-light my-4">상영중인 영화</h3>
+					<h3 class="text-center font-weight-light my-4">상영 종료된 영화 목록</h3>
 					<input class="btn btn-block btn-more" type="button" value="상영예정작 등록하기" onclick="doMovieRegister()"> 
 					<input class="btn btn-block btn-more" type="button" value="박스오피스 영화 등록하기" onclick="doLatest()">
-<!-- 					<input class="btn btn-block btn-more" type="button" value="상영중인영화" onclick="location.href='admin_movie_register'"> -->
-<!-- 					<input class="btn btn-block btn-more" type="button" value="상영종료된영화" onclick="location.href='admin_movie_register_end'"> -->
-<!-- 					<input class="btn btn-block btn-more" type="button" value="재상영중인영화" onclick="location.href='admin_movie_register_reScreening'"> -->
 					<select class="movie_status" onchange="location.href=this.value;">
 					  <option value="admin_movie_register">상영중인 영화</option>
-					  <option value="admin_movie_register_end">상영종료된 영화</option>
+					  <option value="admin_movie_register_end" selected="selected">상영종료된 영화</option>
 					  <option value="admin_movie_register_reScreening">재개봉 영화</option>
 					</select>
-									
+					
 					
 					<table id="datatablesSimple" class="datatable-table">
 						<thead>
@@ -594,7 +591,7 @@ function previewImage(targetObj, View_area) {
 							<c:choose>
 								<c:when test="${pageNum > 1 }">
 									<li class="datatable-pagination-list-item datatable-hidden"
-										onclick="location.href='admin_movie_register?pageNum=${pageNum - 1}'">
+										onclick="location.href='admin_movie_register_end?pageNum=${pageNum - 1}'">
 										<a data-page="${pageNum } class="datatable-pagination-list-item-link">‹</a>
 									</li>
 								</c:when>
@@ -615,13 +612,13 @@ function previewImage(targetObj, View_area) {
 									<%--페이지번호 --%>
 									<c:otherwise>
 										<li class="datatable-pagination-list-item ">
-										<a class="datatable-pagination-list-item-link" href="admin_movie_register?pageNum=${num }">${num }</a></li>
+										<a class="datatable-pagination-list-item-link" href="admin_movie_register_end?pageNum=${num }">${num }</a></li>
 									</c:otherwise>
 								</c:choose>
 							</c:forEach>
 							<c:choose>
 								<c:when test="${pageNum < pageInfo.maxPage }">
-									<li class="datatable-pagination-list-item datatable-hidden" onclick="location.href='admin_movie_register?pageNum=${pageNum + 1}'">
+									<li class="datatable-pagination-list-item datatable-hidden" onclick="location.href='admin_movie_register_end?pageNum=${pageNum + 1}'">
 										<a data-page="${pageNum } class="datatable-pagination-list-item-link">›</a>
 									</li>
 								</c:when>

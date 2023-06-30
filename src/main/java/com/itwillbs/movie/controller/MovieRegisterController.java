@@ -39,11 +39,118 @@ public class MovieRegisterController {
 	// 영화관리페이지
 	// 영화목록조회
 	@RequestMapping(value = "admin_movie_register", method = { RequestMethod.GET, RequestMethod.POST })
-	public String movieRegister(Model model) {
-		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies();
+	public String movieRegister(Model model,@RequestParam(defaultValue = "1") int pageNum) {
+		
+		
+		//페이징처리
+		// -----------------------------------------------------------------------
+		int listLimit = 10; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+		int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+		// -----------------------------------------------------------------------
+		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies(startRow, listLimit);
+		//상영중인것만 보여줘야함
+	
+		// -----------------------------------------------------------------------
+		int listCount = movieRegisterService.getScreeningListCount();
+		System.out.println("현재상영테이블 =============================");
+		System.out.println(listCount);
+		System.out.println("=============================");
+
+		int pageListLimit = 10;
+
+		int maxPage = listCount / listLimit + (listCount % listLimit > 0 ? 1 : 0);
+
+		int startPage = (pageNum - 1) / pageListLimit * pageListLimit + 1;
+
+		int endPage = startPage + pageListLimit - 1;
+
+		if (endPage > maxPage) {
+			endPage = maxPage;
+		}
+
+		PageInfo pageInfo = new PageInfo(listCount, pageListLimit, maxPage, startPage, endPage);
+		
+		System.out.println(pageInfo);
+		
+		model.addAttribute("pageInfo", pageInfo);
 		model.addAttribute("movieList", movieList);
+
+		
 		return "admin/admin_movie_register";
 	}
+	
+	
+	@GetMapping("admin_movie_register_end")
+	public String screenEnd(Model model,@RequestParam(defaultValue = "1") int pageNum) {
+		
+		//페이징처리
+				// -----------------------------------------------------------------------
+				int listLimit = 10; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+				int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+				// -----------------------------------------------------------------------
+				List<HashMap<String, String>> movieList = movieRegisterService.selectEndMoive(startRow, listLimit);
+			
+				// -----------------------------------------------------------------------
+				int listCount = movieRegisterService.getEndListCount();
+
+				int pageListLimit = 10;
+
+				int maxPage = listCount / listLimit + (listCount % listLimit > 0 ? 1 : 0);
+
+				int startPage = (pageNum - 1) / pageListLimit * pageListLimit + 1;
+
+				int endPage = startPage + pageListLimit - 1;
+
+				if (endPage > maxPage) {
+					endPage = maxPage;
+				}
+
+				PageInfo pageInfo = new PageInfo(listCount, pageListLimit, maxPage, startPage, endPage);
+				
+				System.out.println(pageInfo);
+				
+				model.addAttribute("pageInfo", pageInfo);
+				model.addAttribute("movieList", movieList);
+		
+		return "admin/admin_movie_register_end";
+	}
+	
+	@GetMapping("admin_movie_register_reScreening")
+	public String reScreening(Model model,@RequestParam(defaultValue = "1") int pageNum) {
+		
+		//페이징처리
+				// -----------------------------------------------------------------------
+				int listLimit = 10; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+				int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+				// -----------------------------------------------------------------------
+				List<HashMap<String, String>> movieList = movieRegisterService.selectReScreeningMoive(startRow, listLimit);
+			
+				// -----------------------------------------------------------------------
+				int listCount = movieRegisterService.getReScreeningListCount();
+
+				int pageListLimit = 10;
+
+				int maxPage = listCount / listLimit + (listCount % listLimit > 0 ? 1 : 0);
+
+				int startPage = (pageNum - 1) / pageListLimit * pageListLimit + 1;
+
+				int endPage = startPage + pageListLimit - 1;
+
+				if (endPage > maxPage) {
+					endPage = maxPage;
+				}
+
+				PageInfo pageInfo = new PageInfo(listCount, pageListLimit, maxPage, startPage, endPage);
+				
+				System.out.println(pageInfo);
+				
+				model.addAttribute("pageInfo", pageInfo);
+				model.addAttribute("movieList", movieList);
+		
+		return "admin/admin_movie_register_reScreening";
+	}
+	
+	
 
 	// 영화상영예정작관리
 	@RequestMapping(value = "admin_movie_comming_register", method = { RequestMethod.GET, RequestMethod.POST })
@@ -69,6 +176,8 @@ public class MovieRegisterController {
 		return "admin/admin_movie_update";
 	}
 
+
+	
 	// 영화 정보 수정
 	@RequestMapping(value = "updateMovie", method = { RequestMethod.GET, RequestMethod.POST })
 	public String updateMoviePro(@RequestParam HashMap<String, String> movie) {
@@ -117,9 +226,13 @@ public class MovieRegisterController {
 
 	// 영화 일정등록 // 영화관 상영관들고오기
 	@RequestMapping(value = "movieScheduleUpdate", method = { RequestMethod.GET, RequestMethod.POST })
-	public String movieSchedule(Model model, String cinema_name) {
-		System.out.println(cinema_name);
-		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies();
+	public String movieSchedule(Model model, String cinema_name,@RequestParam(defaultValue = "1") int pageNum) {
+		
+		// -----------------------------------------------------------------------
+		int listLimit = 10; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+		int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+		// -----------------------------------------------------------------------
+		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies(startRow, listLimit);
 		model.addAttribute("movieList", movieList);
 		List<HashMap<String, String>> cinemaList = movieRegisterService.selectCinema();
 		model.addAttribute("cinemaList", cinemaList);
@@ -455,7 +568,12 @@ public class MovieRegisterController {
 		System.out.println("movieEndSchedule =======================================================");
 // 		List<HashMap<String, String>> endSchList = movieRegisterService.endSchList();
 
-		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies();
+		// -----------------------------------------------------------------------
+		int listLimit = 15; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+		int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+		// -----------------------------------------------------------------------
+		
+		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies(startRow, listLimit);
 		List<HashMap<String, String>> cinemaList = movieRegisterService.selectCinema();
 		int ended_screening = movieRegisterService.ended_screening();
 		
@@ -467,10 +585,7 @@ public class MovieRegisterController {
 		}
 		// 상영종료테이블에서LIST
 
-		// -----------------------------------------------------------------------
-		int listLimit = 15; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
-		int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
-		// -----------------------------------------------------------------------
+
 		List<HashMap<String, String>> endSchList = movieRegisterService.endSchList(startRow, listLimit);
 
 		// -----------------------------------------------------------------------
@@ -526,10 +641,18 @@ public class MovieRegisterController {
 	}
 
 	@GetMapping("selectRes")
-	public String resUpdate(Model model, @RequestParam String res_code) {
+	public String resUpdate(Model model, @RequestParam String res_code, @RequestParam(defaultValue = "1") int pageNum) {
 		System.out.println("====================================");
 		HashMap<String, String> detailRes = movieRegisterService.detailRes(res_code);
-		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies();
+		
+		
+		// -----------------------------------------------------------------------
+		int listLimit = 15; // 한 페이지에서 표시할 게시물 목록 갯수(10개로 제한)
+		int startRow = (pageNum - 1) * listLimit; // 조회 시작 행번호(startRow) 계산 => 0, 10, 20...
+		// -----------------------------------------------------------------------
+		
+		
+		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies(startRow, listLimit);
 
 		model.addAttribute("movieList", movieList);
 		model.addAttribute("detailRes", detailRes);
@@ -556,30 +679,5 @@ public class MovieRegisterController {
 
 		return "redirect:/resList";
 	}
-
-// 	//상영종료된 값 스케쥴링	
-// 	@Component
-// 	public class ScheduledTask {
-// 	    @Scheduled(fixedRate = 10000 * 6 *60 *24) // 하루마다 실행
-// 	    public void executeTask() {
-// 	    	//1. 상영종료된 정보들을 조회 (schedule 테이블)
-// 	    	//2. 상영종료된 정보들을 schedule_end 테이블로이동
-// 	    	//3. schedule 테이블에서 삭제
-// 	    	
-// 	    	List<HashMap<String, String>> endSch = movieRegisterService.selectEndSch();
-// 	    	System.out.println(endSch);
-// 	    	for (HashMap<String, String> sch : endSch) {
-// 	    		
-//	 	    	sch.put("sch_screen_code", endSch.get("sch_screen_code"));
-//	 	    	sch.put("sch_cinema_code", "상영관");
-//	 	    	sch.put("sch_movie_code", "상영관 번호");
-//	 	    	sch.put("sch_movie_date", "상영 시작 시간");
-//	 	    	sch.put("sch_last_time", "상영 시작 시간");
-//	
-//	 	    	endSch.add(sch);
-//	 	    	
-// 	    	}
-// 	    }
-// 	}
 
 }

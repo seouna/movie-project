@@ -67,31 +67,29 @@ function modalClose(){
 </head>
 <body class="sb-nav-fixed">
 	<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-		<!-- Navbar Brand-->
-		<a class="navbar-brand ps-3" href="admin">IMOVIE</a>
-		<!-- Sidebar Toggle-->
-		<button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"
-			id="sidebarToggle" href="#!">
-			<i class="fas fa-bars"></i>
-		</button>
-		<!-- Navbar Search-->
-		<form
-			class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-		</form>
-		<!-- Navbar-->
-		<ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-			<li class="nav-item dropdown"><a
-				class="nav-link dropdown-toggle" id="navbarDropdown" href="#"
-				role="button" data-bs-toggle="dropdown" aria-expanded="false"> <i
-					class="fas fa-user fa-fw"></i>
-			</a>
-				<ul class="dropdown-menu dropdown-menu-end"
-					aria-labelledby="navbarDropdown">
-					<li><a class="dropdown-item" href="main">홈</a></li>
-					<li><hr class="dropdown-divider" /></li>
-					<li><a class="dropdown-item" href="logout">Logout</a></li>
-				</ul></li>
+	<!-- Navbar Brand-->
+	<a class="navbar-brand ps-3" href="admin">IMOVIE</a>
+	<!-- Sidebar Toggle-->
+	<button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+	<i class="fas fa-bars"></i>
+	</button>
+	<!-- Navbar Search-->
+	<form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+	</form>
+	<!-- Navbar-->
+	<ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+		<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		<i class="fas fa-user fa-fw"></i>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+			<li><a class="dropdown-item" href="main">홈</a></li>
+			<li>
+			<hr class="dropdown-divider"/>
+			</li>
+			<li><a class="dropdown-item" href="logout">Logout</a></li>
 		</ul>
+		</li>
+	</ul>
 	</nav>
 	<div id="layoutSidenav">
 		<!-- 고정  -->
@@ -110,22 +108,29 @@ function modalClose(){
 					<table id="datatablesSimple" class="datatable-table">
 						<thead>
 							<tr>
-								<th data-sortable="true" style="width: 5%;"><a href="#"
-									class="datatable-sorter">결제번호</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">회원ID</a></th>
-								<th data-sortable="true" style="width: 10%;"><a href="#"
-									class="datatable-sorter">영화제목</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">영화관명</a></th>
-<!-- 								<th data-sortable="true" style="width: 8%;"><a href="#" -->
-<!-- 									class="datatable-sorter">상영관명</a></th> -->
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">관람날짜</a></th>
-								<th data-sortable="true" style="width: 7%;"><a href="#"
-									class="datatable-sorter">좌석</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">결제금액</a></th>
+								<th data-sortable="true" style="width: 5%;">
+									<a href="#" class="datatable-sorter">결제번호</a>
+								</th>
+								<th data-sortable="true" style="width: 8%;">
+									<a href="#" class="datatable-sorter">회원ID</a>
+								</th>
+								<th data-sortable="true" style="width: 10%;">
+									<a href="#" class="datatable-sorter">영화제목</a>
+								</th>
+								<th data-sortable="true" style="width: 8%;">
+									<a href="#" class="datatable-sorter">영화관명</a>
+								</th>
+								<!-- 								<th data-sortable="true" style="width: 8%;"><a href="#" -->
+								<!-- 									class="datatable-sorter">상영관명</a></th> -->
+								<th data-sortable="true" style="width: 8%;">
+									<a href="#" class="datatable-sorter">관람날짜</a>
+								</th>
+								<th data-sortable="true" style="width: 7%;">
+									<a href="#" class="datatable-sorter">좌석</a>
+								</th>
+								<th data-sortable="true" style="width: 8%;">
+									<a href="#" class="datatable-sorter">결제금액</a>
+								</th>
 								<th data-sortable="true" style="width: 10%;">
 									<a href="#" class="datatable-sorter">결제일</a>
 								</th>
@@ -136,7 +141,7 @@ function modalClose(){
 									<a href="#" class="datatable-sorter">수정</a>
 								</th>
 							</tr>
-						</thead>
+							</thead>				
 						<!-- 회원목록 -->
 						<c:forEach var="resList" items="${resList }">
 						<tbody>
@@ -269,8 +274,7 @@ function modalClose(){
 														<label for="sch_movie_code">영화선택 : </label> <select
 															name="sch_movie_code" id="sch_movie_code"
 															style="width: 300px;">
-															<option value="none" selected="selected" disabled>영화를
-																선택하세요</option>
+															<option value="none" selected="selected" disabled>영화를 선택하세요</option>
 															<option value="none" disabled>=======================</option>
 															<c:forEach var="movie" items="${movieList }">
 																<option value="${movie.get('info_movie_code') }">${ movie.get("info_movie_title") }</option>
@@ -292,8 +296,8 @@ function modalClose(){
 											<div class="col-md-4">
 												<div class="form-floating mb-3 mb-md-0 selectbox">
 													<div class="screen_name">
-														<label for="screen_name">상영관 : </label> <select
-															name="screen_name">
+														<label for="screen_name">상영관 : </label>
+														 <select name="screen_name">
 															<option value="1">1관</option>
 															<option value="2">2관</option>
 															<option value="3">3관</option>

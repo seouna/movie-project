@@ -14,10 +14,23 @@ public class MovieRegisterService {
 	
 	@Autowired
 	private MovieRegisterMapper mapper;
+	
 	//영화 목록
-	public List<HashMap<String, String>> selectMovies() {
-		return mapper.selectMovies();
+	public List<HashMap<String, String>> selectMovies(int startRow, int listLimit) {
+		return mapper.selectMovies(startRow,listLimit);
 	}
+	
+	//끝난목록
+	public List<HashMap<String, String>> selectEndMoive(int startRow, int listLimit) {
+		return mapper.selectEndMoive(startRow,listLimit);
+	}
+	
+	//재상영
+	public List<HashMap<String, String>> selectReScreeningMoive(int startRow, int listLimit) {
+		return mapper.selectReScreeningMoive(startRow,listLimit);
+	}
+	
+	
 	//현재 상영목록
 	public List<HashMap<String, String>> selectScreeningMovieList() {
 		return mapper.selectScreeningMovieList();
@@ -235,6 +248,15 @@ public class MovieRegisterService {
 	public int ended_screening() {
 		return mapper.ended_screening();
 	}
+	public int getScreeningListCount() {
+		return mapper.screeningListCount();
+	}
+
+	public int getReScreeningListCount() {
+		return mapper.reScreeningListCount();
+	}
+
+
 
 
 }

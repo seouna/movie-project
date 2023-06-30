@@ -5,9 +5,43 @@
 	<!-- 영화목록 -->
 	<select id="selectMovies" resultType="hashmap">
 		SELECT *
-		FROM movieinfo
-		ORDER BY
-		info_showdate DESC
+			FROM movieinfo
+				WHERE 1=1 
+			 		AND info_status like 'screening' 
+			ORDER by info_showdate desc
+		LIMIT
+		#{startRow}
+		, #{listLimit}	
+	</select>
+	<select id="selectEndMoive" resultType="hashmap">
+		SELECT *
+			FROM movieinfo
+				WHERE 1=1 
+			 		AND info_status like 'end' 
+			ORDER by info_showdate desc
+		LIMIT
+		#{startRow}
+		, #{listLimit}	
+	</select>
+	<select id="selectReScreeningMoive" resultType="hashmap">
+		SELECT *
+			FROM movieinfo
+				WHERE 1=1 
+			 		AND info_status like 'reScreening' 
+			ORDER by info_showdate desc
+		LIMIT
+		#{startRow}
+		, #{listLimit}	
+	</select>
+	<select id="screeningListCount" resultType="int">
+		SELECT count(*)
+			FROM movieinfo
+		WHERE info_status like 'screening' 
+	</select>
+	<select id="reScreeningListCount" resultType="int">
+		SELECT count(*)
+			FROM movieinfo
+		WHERE info_status like 'reScreening' 
 	</select>
 	<!-- rating / rate 주의 -->
 	<!-- 현재상영목록 -->

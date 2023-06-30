@@ -13,7 +13,13 @@ public interface MovieRegisterMapper {
 	int registMovie(HashMap<String, String> movie);
 	
 	//모든영화목록
-	List<HashMap<String, String>> selectMovies();
+	List<HashMap<String, String>> selectMovies(@Param("startRow") int startRow,@Param("listLimit")  int listLimit);
+	
+	List<HashMap<String, String>> selectEndMoive(@Param("startRow") int startRow,@Param("listLimit") int listLimit);
+
+	List<HashMap<String, String>> selectReScreeningMoive(@Param("startRow")int startRow,@Param("listLimit") int listLimit);
+	
+	
 	//현재상영목록
 	List<HashMap<String, String>> selectScreeningMovieList();
 	//최신영화순 조회
@@ -123,6 +129,14 @@ public interface MovieRegisterMapper {
 	int resTodayCount();
 
 	int ended_screening();
+
+	int screeningListCount();
+
+	int reScreeningListCount();
+
+
+
+	
 
 
 }
