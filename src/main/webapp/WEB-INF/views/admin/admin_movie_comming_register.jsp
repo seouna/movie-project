@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
 <!DOCTYPE html>
 <html lang="en">
 <c:set var="path" value="${pageContext.request.contextPath}" />
@@ -518,40 +520,36 @@ console.log("검색 날짜 : " + targetDay);
 
 				<!-- 테이블 -->
 				<div class="datatable-container">
-					<h3 class="text-center font-weight-light my-4">상영예정작등록</h3>
+					<h3 class="text-center font-weight-light my-4">📆 COMMING SOON 📆</h3>
 					<input class="btn btn-block btn-more" type="button" value="영화불러오기" onclick="doLatest()">
 					<table id="datatablesSimple" class="datatable-table">
-						<thead>
+							<thead>
 							<tr>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">영화코드</a></th>
-								<th data-sortable="true" style="width: 10%;"><a href="#"
-									class="datatable-sorter">영화제목</a></th>
-									<th data-sortable="true" style="width: 8%;"><a href="#"
-									 class="datatable-sorter">상영상태</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">제작년도</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">상영시간</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">상영일</a></th>
-								<th data-sortable="true" style="width: 8%;"><a href="#"
-									class="datatable-sorter">종영일</a></th>
-								<th data-sortable="true" style="width: 15%;"><a href="#"
-									class="datatable-sorter">줄거리</a></th>
-								<th data-sortable="true" style="width: 10%;"><a href="#"
-									class="">수정/삭제</a></th>
+<!-- 								<th data-sortable="true" style="width: 8%;"><a href="infoMovieCodeSort" class="datatable-sorter">영화코드</a></th> -->
+								<th data-sortable="true" style="width: 14%;"><a href="" class="datatable-sorter">영화제목</a></th>
+<!-- 								<th data-sortable="true" style="width: 8%;"><a href="#" class="datatable-sorter">상영상태</a></th> -->
+								<th data-sortable="true" style="width: 15%;"><a href="" class="datatable-sorter">상영시간</a></th>
+								<th data-sortable="true" style="width: 8%;"><a href=""	class="datatable-sorter">상영일</a></th>
+								<th data-sortable="true" style="width: 8%;"><a href=""	class="datatable-sorter">종영일</a></th>
+								<th data-sortable="true" style="width: 10%;"><a href=""	class="datatable-sorter">줄거리</a></th>
+								<th data-sortable="true" style="width: 10%;"><a href="" class="">수정/삭제</a></th>
 							</tr>
 						</thead>
 						<!-- 회원목록 -->
 						<c:forEach var="movie" items="${movieList }">
 						<tbody>
 							<tr style="text-align: center;" data-index="0">
-								<td>${movie.get("info_movie_code") }</td>
+<%-- 								<td>${movie.get("info_movie_code") }</td> --%>
 								<td>${movie.get("info_movie_title") }</td>
-								<td>${movie.get("info_status") }</td>
-								<td>${movie.get("info_year") }</td>
-								<td>${movie.get("info_time") }</td>
+<%-- 								<td>${movie.get("info_status") }</td> --%>
+<%-- 								<td>${movie.get("info_year") }</td> --%>
+								<c:set var="infoTime" value="${movie.get('info_time')}" />
+								<td>
+								  <c:set var="hours" value="${fn:substring(infoTime, 0, 2)}" />
+								  <c:set var="minutes" value="${fn:substringAfter(infoTime, ':')}" />
+								  ${hours}시간 ${minutes}분
+								</td>
+								
 								<td>${movie.get("info_showdate") }</td>
 								<td>${movie.get("info_enddate") }</td>
 								<td id="info_story">${movie.get("info_story") }</td>
