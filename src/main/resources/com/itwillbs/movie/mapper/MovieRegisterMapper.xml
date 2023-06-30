@@ -43,6 +43,11 @@
 			FROM movieinfo
 		WHERE info_status like 'reScreening' 
 	</select>
+	<select id="screeningEndListCount" resultType="int">
+		SELECT count(*)
+			FROM movieinfo
+		WHERE info_status like 'end' 
+	</select>
 	<!-- rating / rate 주의 -->
 	<!-- 현재상영목록 -->
 	<select id="selectScreeningMovieList" resultType="hashmap">

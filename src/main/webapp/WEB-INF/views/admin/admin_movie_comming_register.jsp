@@ -388,7 +388,7 @@ console.log("검색 날짜 : " + targetDay);
 							<div class="card border-1 mt-5">
 								<div class="card-header" style="text-align: center">
 									<button type="button" class="close-modal" onclick="modalClose()" style="border: none;">닫기</button>
-									<h3 class="text-center font-weight-light my-4">상영 예정작 등록</h3>
+									<h3 class="text-center font-weight-light my-4">상영 예정작</h3>
 									<span>영화목록</span><br><br>
 									<select id="api" name="api" >
 										<option value="none" selected="selected" disabled >상영 예정작 등록</option>

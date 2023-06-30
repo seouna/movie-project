@@ -96,7 +96,7 @@ public interface MovieRegisterMapper {
 	int insertSchedule_end();
 
 	int endSchedule_del();
-
+	int reScreeningListCount();
 //	int selectBoardListCount();
 
 	List<HashMap<String, String>> endSchList(@Param("startRow") int startRow, @Param("listLimit") int listLimit);
@@ -104,7 +104,7 @@ public interface MovieRegisterMapper {
 	int todayCount();
 
 	int selectBoardListCount(@Param("sch_movie_code") String sch_movie_code,@Param("sch_cinema_code") String sch_cinema_code,@Param("sch_research_date") String sch_research_date);
-	int schEndListCount();
+
 	
 	//상영예매내역
 	List<HashMap<String, String>> resList(@Param("startRow") int startRow,@Param("listLimit")int listLimit);
@@ -131,8 +131,9 @@ public interface MovieRegisterMapper {
 	int ended_screening();
 
 	int screeningListCount();
+	int schEndListCount();
 
-	int reScreeningListCount();
+	int screeningEndListCount();
 
 
 

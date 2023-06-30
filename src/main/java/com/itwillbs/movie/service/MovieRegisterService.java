@@ -256,6 +256,10 @@ public class MovieRegisterService {
 		return mapper.reScreeningListCount();
 	}
 
+	public int screeningEndListCount() {
+		return mapper.screeningEndListCount();
+	}
+
 
 
 

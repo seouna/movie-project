@@ -91,7 +91,7 @@ public class MovieRegisterController {
 				List<HashMap<String, String>> movieList = movieRegisterService.selectEndMoive(startRow, listLimit);
 			
 				// -----------------------------------------------------------------------
-				int listCount = movieRegisterService.getEndListCount();
+				int listCount = movieRegisterService.screeningEndListCount();
 
 				int pageListLimit = 10;
 
