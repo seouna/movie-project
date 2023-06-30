@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- 주의! mapper 태그 내의 namespace 속성에 현재 XML 파일과 연결될 자바 클래스를 명시해야한다! -->
+<mapper namespace="com.itwillbs.movie.mapper.MyBatisMapper">
+	
+	<!-- 회원가입 -->
+<!-- 	<insert id="insertMember"> -->
+<!-- 		INSERT INTO member -->
+<!-- 			VALUES( -->
+<!-- 				   #{member_id} -->
+<!-- 				   , #{member_name} -->
+<!-- 				   , #{member_pw} -->
+<!-- 				   , #{member_bday} -->
+<!-- 				   , #{member_email} -->
+<!-- 				   , #{member_tel} -->
+<!-- 				   , '1000' -->
+<!-- 				   , #{member_prefer_branch} -->
+<!-- 				   , #{member_prefer_genre} -->
+<!-- 				   , now() -->
+<!-- 			) -->
+<!-- 	</insert> -->
+
+	<!-- 회원가입 수정-->
+	<insert id="insertMember">
+		INSERT INTO member
+			VALUES(
+				   #{member_id}
+				   , #{member_name}
+				   , #{member_pw}
+				   , #{member_address}
+				   , #{member_bday}
+				   , #{member_email}
+<!-- 					CONCAT(#{email1}, '@', #{email2}),  -->
+				   , #{member_tel}
+				   , '1000'
+				   , #{member_prefer_branch}
+				   , #{member_prefer_genre}
+				   , now()
+			)
+	</insert>
+	
+	<select id="checkId" resultType="hashmap">
+		SELECT * FROM member
+			WHERE member_id = #{id}
+	</select>
+	
+	
+	<insert id= "insertPoint" >
+		INSERT 
+  			INTO point
+  			VALUES (
+  			(SELECT *
+  			  FROM (SELECT IFNULL(MAX(point_code),0) FROM point) A)+1
+  			,#{member_id}
+  			,'회원가입 축하 이벤트'
+			,'1000'
+			,now()
+  			);
+  	</insert>
+	
+	<!-- 로그인 조회 -->
+<!-- 	<select id="chekUser" resultType="hashmap"> -->
+<!-- 		SELECT *  -->
+<!-- 			FROM member -->
+<!-- 				WHERE member_id = #{member_id} AND member_pw = #{member_pw} -->
+<!-- 	</select> -->
+
+	<!-- 로그인 조회 -해싱 -->
+	<select id="chekUser" resultType="hashmap">
+		SELECT * 
+			FROM member
+				WHERE member_id = #{member_id} 
+	</select>
+	
+	<!-- 카카오 회원 확인 -->
+	<select id="selectKakao" resultType="hashmap">
+		SELECT * FROM member
+			WHERE member_email = #{email}
+	</select>
+	
+	<select id="selectMemberId" resultType="hashmap">
+		SELECT * 
+				FROM member
+					WHERE member_id = #{id}
+	</select>
+	
+	<select id="selectItem" resultType="hashmap">
+		SELECT * FROM item
+			<if test="!searchKeyword.equals('')">
+			WHERE
+			<choose>
+				<when test="searchType.equals('item_type')">
+					item_type LIKE '%${searchKeyword}%'
+				</when>
+				<when test="searchType.equals('item_name')">
+					item_name LIKE '%${searchKeyword}%'
+				</when>
+				<when test="searchType.equals('item_status')">
+					item_status LIKE '%${searchKeyword}%'
+				</when>
+			</choose>
+			</if>
+	</select>
+	
+	<delete id="deleteItem">
+		DELETE FROM item
+			 WHERE item_code = #{item_code}
+	</delete>
+	
+	<select id="selectGift" resultType="hashmap">
+		SELECT * FROM item
+			WHERE item_type = 'giftcard'
+	</select>
+	
+	<select id="selectFood" resultType="hashmap">
+		SELECT * FROM item
+			WHERE item_type = 'food'
+	</select>
+	
+	<select id="selectTicket" resultType="hashmap">
+		SELECT * FROM item
+			WHERE item_type = 'ticket'
+	</select>
+	
+	<!-- 상품 조회(아이템코드) -->
+	<select id="selectCode" resultType="hashmap">
+		SELECT * FROM item
+			WHERE item_code = #{item_code}
+	</select>
+	
+	<!-- 관리자 상품 등록 -->
+	<insert id="registItem">
+		INSERT INTO item
+			VALUES(
+				   #{item_code}
+				   , #{item_type}
+				   , #{item_name}
+				   , #{item_price}
+				   , #{item_detail}
+				   , #{item_image}
+				   , #{item_status}
+			)
+	</insert>
+	
+	<!-- 관리자 상품 수정 -->
+	<update id="updateItem">
+		UPDATE item 
+			SET item_type = #{item_type}
+			  , item_price = #{item_price}
+			  , item_name = #{item_name}
+			  , item_price = #{item_price}
+			  , item_detail = #{item_detail}
+			  , item_image = #{item_image}
+			  , item_status = #{item_status}
+					WHERE item_code = #{item_code}
+	</update>
+	
+	
+	<!-- 스토어 결제 저장-->
+	<insert id="insertPay">
+		INSERT INTO pay
+			VALUES(
+				   #{pay_code}
+				 , #{id}
+				 , #{item_code}
+				 , #{pay_type}
+				 , #{pay_price}
+				 , DATE_FORMAT(now(),'%Y-%m-%d')
+				 , 'N'
+				 , #{pay_status}
+			)
+	</insert>
+	
+	<!-- 결제 조회 -->
+	<select id="selectPay" resultType="hashmap">
+		SELECT * FROM pay
+		<if test="!searchKeyword.equals('')">
+			WHERE
+			<choose>
+				<when test="searchType.equals('pay_code')">
+					pay_code LIKE '%${searchKeyword}%'
+				</when>
+				<when test="searchType.equals('member_id')">
+					member_id LIKE '%${searchKeyword}%'
+				</when>
+				<when test="searchType.equals('pay_date')">
+					pay_date LIKE '%${searchKeyword}%'
+				</when>
+			</choose>
+		</if>
+		ORDER BY pay_date DESC
+	</select>
+	
+	<!-- 결제 내역 삭제 -->
+	<delete id="payDelete">
+		DELETE FROM pay
+			WHERE pay_code = #{pay_code}
+	</delete>
+	
+	<!-- 결제 조회(pay_code) -->
+	<select id="selectPayUpdate" resultType="hashmap">
+		SELECT * FROM pay
+			WHERE pay_code = #{pay_code}
+	</select>
+	
+	<!-- 결제 수정 -->
+	<update id="payUpdate">
+		UPDATE pay
+			SET pay_code = #{pay_code}
+			  , member_id = #{member_id}
+			  , item_code = #{item_code}
+			  , pay_type = #{pay_type}
+			  , pay_price = #{pay_price}
+			  , pay_date = #{pay_date}
+			  , pay_cancel_date = #{pay_cancel_date}
+			  , pay_status = #{pay_status}
+			 	WHERE pay_code = #{pay_code}
+	</update>
+	
+	<!-- 결제 코드 조회 -->
+	<select id="selectPayCode" resultType="hashmap">
+		SELECT * FROM pay
+			WHERE pay_code = #{payCode}
+	</select>
+	
+	
+	<!-- 포인트 적립 -->
+	<update id="updatePoint">
+		UPDATE member
+			SET member_point = #{point}
+				WHERE member_id = #{id}
+	</update>
+	
+	<!-- 포인트 적립(point 테이블) -->
+	<insert id="insertPointTable">
+		INSERT INTO point
+			VALUES (
+  					(SELECT *
+  			 		 FROM (SELECT IFNULL(MAX(point_code),0) FROM point) A) + 1
+  				   , #{id}
+  				   , '스토어 결제'
+				   , #{payPoint}
+				   , now()
+  			)
+	</insert>
+	
+	<!-- 포인트 조회 -->
+	<select id="selectPoint" resultType="string">
+		SELECT member_point
+			FROM member
+				WHERE member_id = #{id}
+	</select>
+	
+	<!-- 포인트 차감 -->
+	<update id="minusPoint">
+		UPDATE member
+			SET member_point = #{point}
+				WHERE member_id = #{id}
+	</update>
+	
+	<!-- 멤버리스트 -->
+	<select id="selectMember" resultType="hashmap">
+		SELECT *
+		 FROM member
+		 <if test="!searchKeyword.equals('')">
+		 	WHERE
+		 	member_name LIKE CONCAT('%', #{searchKeyword}, '%')
+		 </if> 
+		 ORDER BY
+		 	member_date DESC
+		LIMIT 
+		 	#{startRow}
+		  , #{listLimit}
+	</select>
+	<!-- 멤버총수 -->
+	<select id="selectMemberListCount" resultType="int">
+		SELECT count(*) FROM member
+	</select>
+	
+	<select id="memberCount" resultType="int">
+		SELECT count(*) FROM member
+	</select>
+	
+
+	<!-- 메인페이지 핫상품3개 -->
+	<select id="selectHot" resultType="hashmap">
+		SELECT *
+		  FROM item
+		 WHERE item_status = 'hot'
+	</select>
+	
+	<!-- 아이디 조회 -->
+	<select id="findId" resultType="hashmap">
+		SELECT * FROM member
+			WHERE member_name = #{member_name}
+				AND member_bday = #{member_bday}
+				AND member_tel = #{member_tel}
+	</select>
+	
+	<!-- 비밀번호 재설정 -->
+	<update id="renewPw">
+		UPDATE member
+			SET member_pw = #{member_pw}
+				WHERE member_id = #{member_id}
+	</update>
+	
+	<!-- 비밀번호 찾기 회원 인증 -->
+	<select id="phoneCheck" resultType="hashmap">
+		SELECT *
+			FROM member
+				WHERE 
+					member_id = #{member_id}
+					AND member_name = #{member_name}
+					AND member_bday = #{member_bday}
+					AND member_tel = #{member_tel}
+	</select>
+	
+	<!-- 메인페이지 공지 1개 -->
+	<select id="mainNotice" resultType="hashmap">
+		SELECT * 
+			FROM notice_board 
+			ORDER BY notice_code desc
+			LIMIT 1
+	</select>
+	<select id="selectReview" resultType="hashmap">
+		 SELECT 
+		    rev_movie_code
+		  , m.info_movie_title
+		  , rev_id,rev_rating
+		  , rev_content,rev_date
+		  , concat(SUBSTRING(member_name, 1, 1),'*',SUBSTRING(member_name, 3, 1)) AS mem_name
+		   FROM review
+		   LEFT JOIN movieinfo m 
+		   ON rev_movie_code = m.info_movie_code
+		   LEFT JOIN member
+		   ON review.rev_id = member.member_id
+		  ORDER BY rev_code*1 DESC 
+		  LIMIT 3;
+	</select>
+	
+	<!-- 포인트 테이블 차감 -->
+	<insert id="minusPointTable">
+		INSERT INTO point
+			VALUES(
+					(SELECT *
+  			 		 FROM (SELECT IFNULL(MAX(point_code),0) FROM point) A) + 1
+  				   , #{id}
+  				   , '스토어 결제 차감'
+				   , -#{point}
+				   , now()
+			)
+	</insert>
+	<select id="payCount" resultType="int">
+		SELECT count(*)
+		  FROM pay 
+		 WHERE pay_date=CURRENT_DATE()
+	</select>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

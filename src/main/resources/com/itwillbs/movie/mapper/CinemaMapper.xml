@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itwillbs.movie.mapper.CinemaMapper">
+
+	<select id="location" resultType="hashmap">
+		SELECT * FROM location
+	</select>
+	
+	<select id="locationCinema" resultType="hashmap">
+		SELECT cinema_name,
+			   cinema_code
+	      FROM cinema
+	 LEFT JOIN location 
+	        ON cinema.location_code = location.location_code
+	  	 WHERE location_name = #{location_name}
+	</select>
+	
+	<!-- 공지사항 -->
+	<select id="noticeList" resultType="hashmap">
+		SELECT cinema.cinema_name
+		  ,location_name
+		  ,notice_subject
+		  ,notice_write_date 
+		FROM notice_board
+		LEFT JOIN cinema
+			   ON cinema.cinema_name = notice_board.cinema_name
+		LEFT JOIN location 
+		       ON location.location_code = cinema.location_code
+		ORDER BY notice_write_date desc
+		LIMIT 5
+	</select>
+	
+	<!-- 극장 전체 선택페이지에서 디테일 페이지로 넘어갈때 -->
+	<select id="cinemaDetail" resultType="hashmap">
+		SELECT *
+		  FROM cinema
+		 WHERE cinema_code = #{cinema_code}
+	</select>
+	
+	<!--  해당 지점의 상영스케쥴  -->
+	<select id="schList" resultType="hashmap">
+		 SELECT A.*
+		      , group_concat(concat(sch_start_time) SEPARATOR '/') AS starttimes
+			  , group_concat(concat(sch_last_time) SEPARATOR '/') AS lasttimes
+			  , group_concat(concat(screen_name) SEPARATOR '/') AS names
+			
+		  FROM (
+				SELECT 
+							    schedule.sch_movie_date
+							  , DATE_FORMAT(schedule.sch_start_time, '%H:%i') AS sch_start_time
+				  			  , DATE_FORMAT(schedule.sch_last_time, '%H:%i') AS sch_last_time
+							  , cinema.cinema_name -- 극장이름
+							  , cinema.cinema_code -- 극장번호
+							  , CASE movieInfo.info_rating	 -- 등급												
+						WHEN '18세관람가(청소년관람불가)' 	THEN 'rate-x'
+						WHEN '15세관람가' 					THEN 'rate-15'
+						WHEN '12세관람가' 					THEN 'rate-12'
+						WHEN '전체관람가' 					THEN 'rate-all' 
+						ELSE ''
+						END AS 'rate'
+							  , movieInfo.info_movie_code  -- 영화 코드
+							  , movieInfo.info_movie_title -- 영화이름
+							  , screen.seat_sum   -- 좌석 총수
+							  , screen.screen_name -- 상영관명
+							  , schedule.sch_screen_code -- 상영관코드
+							  , schedule.sch_code -- 상영번호
+							  , IFNULL(CAST(screen.seat_sum AS UNSIGNED)-cast(reservation.res_count AS unsigned),45) AS remain_seat -- 남은좌석
+						 FROM schedule 
+					LEFT JOIN cinema 
+						   ON cinema.cinema_code = schedule.sch_cinema_code
+					LEFT JOIN movieInfo
+						   ON movieInfo.info_movie_code = schedule.sch_movie_code
+					LEFT JOIN screen
+					       on screen.screen_code = schedule.sch_screen_code
+			        LEFT JOIN reservation 
+				           ON schedule.sch_code = reservation.res_sch_code 
+					       where 1=1
+					       AND sch_cinema_code = #{cinema_code}
+					       AND sch_movie_date=#{date}
+						   AND sch_movie_date >= CURRENT_DATE() -- 현재 날짜 이후
+						   AND ((sch_movie_date = CURRENT_DATE() AND sch_start_time >= CURRENT_TIME())
+						   OR sch_movie_date > CURRENT_DATE()) -- 현재 시간 이후
+					       ORDER BY info_movie_title
+				) A 
+		 			GROUP BY info_movie_title, sch_screen_code;
+	</select>
+	
+	<!-- 선호영화관 찾기 -->
+	<select id="preferCinema" resultType="hashmap">
+	 SELECT member_prefer_branch,cinema_code
+	   FROM MEMBER 
+       JOIN cinema
+         ON MEMBER.member_prefer_branch = cinema.cinema_name 
+      WHERE member_id=#{id};
+	</select>
+	
+	<!-- 남은 좌석수 조회 -->
+	<select id="remmainSeat" resultType="int">
+		SELECT 
+	      CAST(screen.seat_sum AS UNSIGNED)-cast( reservation.res_count AS unsigned) AS remain_seat
+		 FROM reservation
+		 LEFT JOIN schedule
+		 ON schedule.sch_code = reservation.res_screen_code
+		 LEFT JOIN screen
+		 ON screen.screen_code = reservation.res_screen_code
+		 WHERE res_sch_code =#{sch_code};
+	</select>
+
+</mapper>
+	

@@ -904,7 +904,7 @@ button,select,input,textarea { outline: none; }
 .modal-backdrop {position: fixed; top:0; right:0; bottom:0; left:0; background:#000; z-index:7500; opacity:.7; filter:alpha(opacity=70);}
 .modal {display:none; position:fixed; top:0; right:0; bottom:0; left:0; z-index:8000; overflow:auto; -webkit-overflow-scrolling:touch; outline:0; }
 .modal-dialog {position:relative; width:auto;margin:0 auto 15px;  padding:0 20px; }
-.modal-content {position:relative; background-color:#fff; outline:none;  overflow:hidden;  border-radius:0; padding:20px; }
+.modal-content {position:relative;background-color:#fff;outline:none;overflow:hidden;border-radius:0;padding:20px;box-shadow: 8px 7px 11px 1px #9d9d9d!important;}
 .modal-header { position: relative; margin-bottom: 20px;  }
 .modal-header h4 { font-size:16px; color: #000; font-weight: 600; line-height: 1.5; }
 .modal-header h4.f18 { font-size:18px; }
@@ -913,7 +913,7 @@ button,select,input,textarea { outline: none; }
 .modal-body {  }
 .modal-bottom { margin:0 -3px; text-align: center;}
 .modal-bottom button { width:115px; height: 38px; border:0; text-align: center; border-radius:4px; font-size:14px; color: #000; font-weight: 600; background: #e4e9f2; margin:0 3px; }
-.modal-bottom button.btn-modal2 { background: #40dfd0; }
+.modal-bottom button.btn-modal2 {background: #503396;color: white;   font-size: 17px;  font-weight: 400;}
 .modal-bottom.flex { display: flex; }
 .modal-bottom.flex button { width:49%; }
 .modal-check { text-align: center; padding-top:15px; }
@@ -1813,7 +1813,7 @@ button { border: 0; outline: none; background: none;  text-align: left; }
 .reservation-pc .body .cinema-list .list .step1 ul li.active button { background: #fff; font-weight: 600; }
 .reservation-pc .body .cinema-list .list .step1 ul li button:before {  content: ''; position: absolute;left: 0; right:0; top:0; bottom:0; opacity:0; transition: all 0.3s ease; background: url(../img/reservation_pc/ico_choice.png) no-repeat right center; background-position: right 10px center;}
 .reservation-pc .body .cinema-list .list .step1 ul li.check button:before { opacity:1; }
-.reservation-pc .body .cinema-list .list .step2 { position: absolute; right: 0; top:0; bottom:1px; width:210px; background: #fff; }
+.reservation-pc .body .cinema-list .list .step2 {position: absolute;right: 0;top:0;bottom:1px;width:210px;background: #fff;overflow: auto;}
 .reservation-pc .body .cinema-list .list .step2 ul li { position:relative; }
 .reservation-pc .body .cinema-list .list .step2 ul li .btn-star{  background: url(../img/common/ico_star_off.svg) no-repeat 50% 50%; width:30px; height: 30px; position: absolute;left: 10px; top:50%; margin-top:-15px; z-index:2; background-size:20px auto; } 
 .reservation-pc .body .cinema-list .list .step2 ul li .btn-star.active { background-image: url(../img/common/ico_star_on.svg);}

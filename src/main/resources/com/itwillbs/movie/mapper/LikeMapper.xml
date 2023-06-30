@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itwillbs.movie.mapper.LikeMapper">
+	<select id="findLike" resultType="hashmap">
+		SELECT *
+  		FROM like_movie
+		WHERE 
+				like_movie_code = #{info_movie_code}
+	 			AND like_id = #{member_id}
+	</select>
+	<select id="findLikeList" resultType="hashmap">
+		SELECT like_movie_code
+  		FROM like_movie
+		WHERE 
+	 			 like_id = #{member_id}
+	</select>
+	
+	<insert id="insertLike">
+		INSERT INTO like_movie
+			VALUES(
+				 CONCAT(
+				 	#{info_movie_code}
+				 	,"_"
+				 	,#{member_id}
+			 		)
+				, #{info_movie_code}
+				, #{member_id}
+				, now()			
+			)
+	</insert>
+	<delete id="deleteLike">
+		DELETE
+		FROM 	like_movie
+		WHERE 	like_movie_code = #{info_movie_code}
+		 	AND like_id = #{member_id}						
+	</delete>
+	
+	<update id="updateLike">
+		UPDATE movieinfo
+		   	SET like_count =  (
+		   						SELECT COUNT(*)
+								FROM like_movie					   		
+								WHERE like_movie_code = #{info_movie_code}
+								)			 			 
+		 	WHERE info_movie_code = #{info_movie_code}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

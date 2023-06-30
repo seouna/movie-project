@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itwillbs.movie.mapper.MovieRegisterMapper">
+	<!-- =============================================================================== -->
+	<!-- 영화목록 -->
+	<select id="selectMovies" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY
+		info_showdate DESC
+	</select>
+	<!-- rating / rate 주의 -->
+	<!-- 현재상영목록 -->
+	<select id="selectScreeningMovieList" resultType="hashmap">
+		SELECT *
+		  , CASE info_rating
+			WHEN '18세관람가(청소년관람불가)' THEN 'rate-x'
+			WHEN '15세관람가' THEN 'rate-15'
+			WHEN '12세관람가' THEN 'rate-12'
+			WHEN '전체관람가' THEN 'rate-all'
+			ELSE ''
+			END AS 'rate'
+		FROM movieinfo
+		WHERE info_status = 'screening'
+			ORDER BY
+			info_showdate DESC
+	</select>
+
+	<!-- 상영 예정영화 조회 -->
+	<select id="selectCommingMovieList" resultType="hashmap">
+		SELECT *
+		, CASE info_rating
+		WHEN '18세관람가(청소년관람불가)' THEN 'rate-x'
+		WHEN '15세관람가' THEN 'rate-15'
+		WHEN '12세관람가' THEN 'rate-12'
+		WHEN '전체관람가' THEN 'rate-all'
+		ELSE ''
+		END AS 'rate'
+		FROM movieinfo
+		WHERE info_status = 'comming'
+		ORDER BY
+		info_showdate DESC
+	</select>
+
+
+
+	<!-- =============================================================================== -->
+	<!-- 영화등록 -->
+	<insert id="registMovie">
+		INSERT INTO movieinfo
+		VALUES(
+		#{info_movie_code}
+		, #{info_movie_title}
+		, #{info_movie_poster}
+		, #{info_story}
+		, #{info_year}
+		, #{info_time}
+		, #{info_showdate}
+		, #{info_enddate}
+		, '0' -- likeCount
+		, #{info_director}
+		, #{info_nation}
+		, #{info_rating}
+		, #{info_genre}
+		, #{info_status}
+		)
+	</insert>
+
+	<!-- 영화 상세 정보 -->
+	<select id="selectMovie" resultType="hashmap">
+		SELECT *
+		, CASE info_rating
+		WHEN '18세관람가(청소년관람불가)' THEN 'rate-x'
+		WHEN '15세관람가' THEN 'rate-15'
+		WHEN '12세관람가' THEN 'rate-12'
+		WHEN '전체관람가' THEN 'rate-all'
+		ELSE ''
+		END AS 'rate'
+		FROM movieinfo
+		WHERE info_movie_code = #{info_movie_code}
+	</select>
+	<!-- 영화 상세 정보 - 리뷰 읽어오기 -->
+	<select id="selectMovieReview" resultType="hashmap">
+		SELECT
+		*
+		FROM review
+		WHERE rev_movie_code = #{info_movie_code}
+	</select>
+
+
+	<select id="selectSchMovie" resultType="hashmap">
+		SELECT sch_code,sch_movie_code,info_movie_title,info_time
+		FROM schedule
+		LEFT JOIN movieinfo
+		ON schedule.sch_movie_code = movieinfo.info_movie_code
+		WHERE sch_code = #{sch_code}
+	</select>
+
+	<delete id="deleteMovie">
+		DELETE
+		FROM movieinfo
+		WHERE info_movie_code = #{info_movie_code}
+	</delete>
+
+	<!--수정 -->
+	<update id="updateMovie">
+		UPDATE movieinfo
+		SET info_movie_code = #{info_movie_code}
+		, info_movie_title = #{info_movie_title}
+		, info_story = #{info_story}
+		, info_year = #{info_year}
+		, info_time = #{info_time}
+		, info_rating = #{info_rating }
+		, info_genre = #{info_genre }
+		, info_showdate = #{info_showdate}
+		, info_enddate = #{info_enddate}
+		, info_status = #{info_status}
+		WHERE info_movie_code = #{info_movie_code}
+	</update>
+
+	<select id="selectScreen" resultType="hashmap">
+		SELECT screen_name,screen_code,location_code
+		FROM cinema
+		LEFT JOIN screen
+		ON cinema.cinema_code = screen.screen_cinema_code
+		WHERE cinema_name = #{cinema_name}
+		ORDER BY screen_name
+	</select>
+
+	<select id="selectCinema" resultType="hashmap">
+		SELECT * FROM cinema
+	</select>
+
+
+	<!-- 영화상영일정 -->
+	<insert id="scheduleRegister">
+		INSERT INTO schedule
+		VALUES (
+		(SELECT *
+		FROM (SELECT IFNULL(MAX(CAST(sch_code AS UNSIGNED)), 0) + 1
+		FROM schedule) A)
+		, #{sch_screen_code}
+		, #{sch_cinema_code}
+		, #{sch_movie_code}
+		, #{sch_register_date}
+		, #{sch_start_time}
+		, #{sch_last_time}
+		, 45
+		)
+	</insert>
+	<!-- 상영시간 체크 -->
+	<select id="schCheckTime" resultType="hashmap">
+		<!-- String sch_date, String cinema_name, String screen_name -->
+		SELECT *
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS last_time
+		FROM schedule
+			LEFT JOIN cinema
+			ON schedule.sch_cinema_code=cinema.cinema_code
+			LEFT JOIN screen
+			ON schedule.sch_screen_code=screen.screen_code
+			LEFT JOIN movieinfo
+			ON schedule.sch_movie_code = movieinfo.info_movie_code
+		WHERE 1=1
+			AND sch_movie_date =#{sch_date}
+			AND cinema_name =#{cinema_name}
+			AND screen_name = #{screen_name}
+
+	</select>
+
+	<!-- 영화상영일정목록 -->
+	<select id="selectScheduleDetail" resultType="hashmap">
+		SELECT
+		sch_code
+		, screen.screen_name
+		, cinema.cinema_name
+		, cinema.cinema_code
+		, movieinfo.info_movie_code
+		, movieinfo.info_movie_title
+		, sch_movie_date
+		, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+		, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+		LEFT JOIN screen ON screen.screen_code = sch_screen_code
+		LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+		LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+		WHERE sch_code = #{sch_code}
+	</select>
+
+
+
+
+
+	<!-- 영화상영일정목록 -->
+	<select id="selectScheduleList" resultType="hashmap">
+		SELECT
+			sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+		<where>
+			<if test="sch_movie_code != null and sch_movie_code != ''">
+				AND info_movie_code = #{sch_movie_code}
+			</if>
+			<if test="sch_cinema_code != null and sch_cinema_code != ''">
+				AND cinema_code = #{sch_cinema_code}
+			</if>
+			<if test="sch_research_date != null and sch_research_date != ''">
+				AND sch_movie_date = #{sch_research_date}
+			</if>
+		</where>
+		LIMIT
+		#{startRow}
+		, #{listLimit}
+	</select>
+
+
+	<select id="selectBoardListCount" resultType="int">
+		SELECT COUNT(*) FROM (
+			SELECT
+				 sch_code
+				, screen.screen_name
+				, cinema.cinema_name
+				, cinema.cinema_code
+				, movieinfo.info_movie_code
+				, movieinfo.info_movie_title
+				, sch_movie_date
+				, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+				, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+			FROM schedule
+				LEFT JOIN screen ON screen.screen_code = sch_screen_code
+				LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+				LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+		<where>
+			<if test="sch_movie_code != null and sch_movie_code != ''">
+				AND info_movie_code = #{sch_movie_code}
+			</if>
+			<if test="sch_cinema_code != null and sch_cinema_code != ''">
+				AND cinema_code = #{sch_cinema_code}
+			</if>
+			<if test="sch_research_date != null and sch_research_date != ''">
+				AND sch_movie_date = #{sch_research_date}
+			</if>
+		</where>
+		) AS total_results
+	</select>
+
+
+
+
+	<select id="cinemaNameSort" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY cinema.cinema_name
+	</select>
+
+	<select id="screenNameSort" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY screen.screen_name
+	</select>
+
+	<select id="movieNameSort" resultType="hashmap">
+		SELECT
+			  sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY movieinfo.info_movie_title
+	</select>
+
+	<select id="schDateSort" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY sch_movie_date
+	</select>
+
+	<select id="schStartSort" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY sch_start_time
+	</select>
+
+	<select id="schLastSort" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			ORDER BY sch_last_time
+	</select>
+
+	<select id="selectSchedule" resultType="hashmap">
+		SELECT
+			 sch_code
+			, screen.screen_name
+			, cinema.cinema_name
+			, cinema.cinema_code
+			, movieinfo.info_movie_code
+			, movieinfo.info_movie_title
+			, sch_movie_date
+			, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+			, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule
+			LEFT JOIN screen ON screen.screen_code = sch_screen_code
+			LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+			LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+		WHERE sch_code = #{sch_code}
+	</select>
+	<update id="movieScheduleUpdate">
+		UPDATE schedule
+			SET
+				  sch_movie_date = #{sch_movie_date}
+				, sch_start_time = #{sch_start_time}
+				, sch_last_time = #{sch_last_time}
+		WHERE sch_code = #{sch_code}
+	</update>
+	<delete id="deleteSchedule">
+		DELETE
+		FROM schedule
+		WHERE sch_code = #{sch_code}
+	</delete>
+
+	<select id="infoMovieCodeSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_movie_code
+	</select>
+	<select id="infoMovieNameSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_movie_title
+	</select>
+	<select id="infoYearSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_year
+	</select>
+	<select id="infoTimeSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_time
+	</select>
+	<select id="infoShowDateSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_showdate
+	</select>
+	<select id="infoEndDateSort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_enddate
+	</select>
+	<select id="infoStorySort" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		ORDER BY info_story
+	</select>
+
+
+	<delete id="deleteDateSch">
+		DELETE
+		FROM schedule
+		WHERE sch_movie_date = #{date}
+	</delete>
+
+
+	<insert id="insertSchedule_end">
+		INSERT INTO schedule_end
+		SELECT
+				  sch_code
+				, screen.screen_name
+				, cinema.cinema_name
+				, cinema.cinema_code
+				, movieinfo.info_movie_code
+				, movieinfo.info_movie_title
+				, sch_movie_date
+				, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+				, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+			FROM schedule
+				LEFT JOIN screen ON screen.screen_code = sch_screen_code
+				LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+				LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
+			WHERE sch_movie_date &lt; DATE_SUB(NOW(), INTERVAL 1 DAY)
+			ORDER BY sch_movie_date;
+	</insert>
+	<delete id="endSchedule_del">
+		DELETE FROM schedule
+		WHERE sch_movie_date &lt; DATE_SUB(NOW(), INTERVAL 1 DAY);
+	</delete>
+
+	<select id="schEndListCount" resultType="int">
+		SELECT COUNT(*)
+		FROM schedule_end
+	</select>
+
+	<select id="endSchList" resultType="hashmap">
+		SELECT
+			end_sch_code
+		  , sch_screen_code
+		  , sch_cinema_code
+		  , sch_movie_code
+		  , sch_movie_date
+		  , TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
+		  , TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
+		FROM schedule_end
+			ORDER BY
+			end_sch_code DESC
+			LIMIT
+			#{startRow}
+			, #{listLimit}
+	</select>
+	<select id="todayCount" resultType="int">
+		SELECT count(*)
+		FROM schedule
+		WHERE sch_movie_date = CURDATE()
+	</select>
+	<select id="resListCount" resultType="int">
+		SELECT count(*)
+		FROM reservation
+	</select>
+	
+	<select id="resTodayCount" resultType="int">
+		SELECT count(*)
+		FROM reservation
+		WHERE DATE(res_paydate) = CURRENT_DATE()
+	</select>
+	
+	<select id="resList" resultType="hashmap">
+		SELECT
+			  reservation.res_code
+			, IFNULL(res_id,'noMember') as res_id
+			, reservation.res_sch_code
+			, reservation.res_movie_code
+			, reservation.res_date
+			, reservation.res_title
+			, reservation.res_cinema
+			, reservation.res_count
+			, reservation.res_pay 
+			, reservation.res_payment 
+			, reservation.res_phone 
+			, reservation.res_pay_done 
+			, reservation.res_paydate 
+			, reservation.res_seat_name 
+			, screen_name
+		FROM reservation
+			LEFT JOIN screen
+			ON reservation.res_screen_code = screen.screen_code
+			ORDER BY res_paydate desc
+			LIMIT
+			#{startRow}
+			, #{listLimit}
+	</select>
+
+	<select id="detailRes" resultType="hashmap">
+		SELECT
+			  reservation.res_code
+			, IFNULL(res_id,'noMember') as res_id
+			, reservation.res_sch_code
+			, reservation.res_movie_code
+			, reservation.res_date
+			, reservation.res_title
+			, reservation.res_cinema
+			, reservation.res_count
+			, reservation.res_pay 
+			, reservation.res_payment 
+			, reservation.res_phone 
+			, reservation.res_pay_done 
+			, reservation.res_paydate 
+			, reservation.res_seat_name 
+			, screen_name
+		FROM reservation
+			LEFT JOIN screen
+			ON reservation.res_screen_code = screen.screen_code
+			WHERE res_code=#{res_code}
+	</select>
+	<delete id="delRes">
+		DELETE
+		FROM reservation
+		WHERE res_code = #{res_code}
+	</delete>
+	<update id="updateRes">
+		UPDATE reservation
+		SET res_date = #{res_date}
+		WHERE res_code = #{res_code}
+	</update>
+
+
+	<select id="screeningMovies" resultType="hashmap">
+		SELECT *
+		FROM movieinfo
+		WHERE
+		info_status = 'screening'
+	</select>
+
+
+
+</mapper>

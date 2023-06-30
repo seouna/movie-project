@@ -221,3 +221,18 @@
 .movie-date-wrapper-active>* {
 	color: white;
 }
+
+/* ------------------------------------------------------------------------------------------ */
+.movieListDiv {
+	height : 200px;
+	display : flex;
+	justify-content : center;
+	align-items : center;
+}
+
+.mvTimeLineDiv {
+	height : 200px;
+	display : flex;
+	justify-content : center;
+	align-items : center;
+}

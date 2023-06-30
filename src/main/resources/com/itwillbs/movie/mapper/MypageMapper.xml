@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itwillbs.movie.mapper.MypageMapper">
+  
+  
+  <!-- 회원 정보 조회 -->
+	<select id="selectMemberInfo" resultType="com.itwillbs.movie.vo.MemberVO">
+		SELECT member_id
+			, member_name
+			, member_pw
+			, SUBSTRING_INDEX(member_address, '/', 1) AS member_address1
+			, SUBSTRING_INDEX(member_address, '/', -1) AS member_address2
+			, member_address
+			, member_bday
+			, member_email
+			, member_tel
+			, member_point
+			, member_prefer_branch
+			, member_prefer_genre
+			, member_date
+			    FROM member
+		WHERE member_id  = #{id}
+	</select>
+	
+	<select id="selectMemberId" resultType="hashmap">
+		SELECT * 
+			FROM member
+			WHERE member_id = #{id}
+	</select>
+	
+	<!-- 비밀번호 조회 -->
+	<select id="selectPasswd" resultType="String">
+		SELECT member_pw FROM member
+		WHERE member_id = #{member_id}
+	</select>
+	
+	<!-- 회원정보수정 -->
+	<update id="updateMemberInfo" >
+		UPDATE member
+		SET
+		member_email = #{member_email}
+		<if test="member_pw2 neq ''">
+			,member_pw = #{member_pw2}
+		</if>
+		,member_address = #{member_address}
+		,member_name = #{member_name}
+		,member_bday = #{member_bday}
+		,member_tel = #{member_tel}
+		,member_prefer_branch = #{member_prefer_branch}
+		,member_prefer_genre = #{member_prefer_genre}
+		WHERE member_id = #{member_id}
+		
+	</update>
+  
+  	<delete id = "deleteMember" >
+  		DELETE 
+  			FROM member
+  			WHERE member_id = #{member_id}
+  	</delete>
+  	
+  	<select id = "qnaList" resultType = "hashmap" >
+  		SELECT 
+  			cinema_name
+  			,one_question_type
+  			,one_subject
+  			,one_write_date
+  			,one_rep_board
+  		FROM one_board 
+  		WHERE member_id = #{id}
+  		ORDER BY one_write_date DESC
+  		
+  	</select>
+  	
+  	<insert id= "insertReview" >
+
+
+		INSERT INTO review VALUES
+		(
+		(SELECT *
+			FROM (SELECT IFNULL(MAX(CAST(rev_code  AS UNSIGNED)),0) +1
+			 FROM review) A)
+		,(SELECT res_movie_code
+			FROM reservation WHERE res_id = #{id}
+			ORDER BY res_code DESC LIMIT 1)
+		,#{id}
+		,#{rev_rating}
+		,#{rev_content}
+		,now()
+		)
+
+			
+  	</insert>
+
+  	<select id = "revList" resultType = "hashmap" >
+  		SELECT 
+  			v.rev_code
+  			,m.info_movie_title
+  			,v.rev_content
+  			,v.rev_rating
+  			,v.rev_date
+  		FROM review v 
+  		LEFT JOIN movieinfo m 
+  		ON v.rev_movie_code = m.info_movie_code
+  		WHERE v.rev_id = #{id}
+  	</select>
+  	
+  	<select id = "movieList" resultType= "hashmap">
+  		SELECT info_movie_title
+		FROM movieinfo
+		WHERE info_genre 
+		LIKE	(concat ("%",
+					(SELECT member_prefer_genre 
+                        FROM member 
+                        WHERE member_id = #{id}),"%"))
+      					 LIMIT 5                 
+  	</select>
+  	
+  	<insert id= "insertPoint" >
+		INSERT 
+  			INTO point
+  			VALUES (
+  			(SELECT *
+  			  FROM (SELECT IFNULL(MAX(point_code),0) FROM point) A)+1
+  			, #{id}
+  			,'리뷰작성 이벤트'
+			,'500'
+			,now()
+  			);
+  	</insert>
+  	
+  	<insert id= "removePoint" >
+		INSERT 
+  			INTO point
+  			VALUES (
+  			(SELECT *
+  			  FROM (SELECT IFNULL(MAX(point_code),0) FROM point) A)+1
+  			, #{id}
+  			,'리뷰작성 이벤트 취소'
+			,'-500'
+			,now()
+  			);
+  	</insert>
+  	
+  	<select id = "pointList" resultType = "hashmap" >
+  		SELECT 
+ 			 point_date
+ 			,point_content
+ 			,point_amount
+ 			,ROUND(sum(point_amount) OVER (ORDER BY point_code),0) AS point_sum
+  		FROM point
+  		WHERE point_id = #{id}
+  		ORDER BY point_code DESC
+  	</select>
+  	
+  	<select id = "payList" resultType = "hashmap" >
+	  	 SELECT 
+	  	 	p.pay_date
+	  	 	,i.item_type
+	  	 	,i.item_name
+	  	 	,p.pay_price
+	  	 FROM pay p JOIN item i
+	  	 ON p.item_code = i.item_code
+	  	WHERE p.member_id = #{id}
+	  	ORDER BY p.pay_date DESC
+  	</select>
+  	
+  	<select id = "cinemaList" resultType="hashmap">
+  		SELECT 
+  		cinema_name,
+	  		CASE WHEN A.member_prefer_branch IS NOT NULL 
+	  		THEN 'selected' 
+	  		END AS selected
+   		FROM cinema c
+   			LEFT JOIN (SELECT member_prefer_branch
+		FROM member
+			WHERE member_id  =  #{id}) A
+	 		ON c.cinema_name = A.member_prefer_branch
+  	</select>
+  	
+  	
+<!--   	update [테이블명1] X  -->
+<!-- inner join [테이블명2] Y on X.[조인된컬럼] = Y.[조인된컬럼] -->
+<!-- set X.[컬럼A] = 변경할값 -->
+<!-- ( WHERE 절 ) -->
+  	
+	<update id="updatePoint" >
+	
+		UPDATE member
+		SET member_point = 
+			(SELECT sum(point_amount) FROM point 
+		 	 	WHERE point_id = #{id})
+		WHERE member_id = #{id}
+		
+  	</update>
+  	
+  	<select id = "resList" resultType = "hashmap">
+<!--   		SELECT  -->
+<!-- 	 	r.res_paydate -->
+<!-- 	 	,r.res_title -->
+<!-- 	 	,r.res_cinema -->
+<!-- 	 	,r.res_seat_num -->
+<!-- 	 	,sn.screen_name -->
+<!-- 	 	,sc.sch_movie_date -->
+<!-- 	 	,concat(sc.sch_start_time,' ~ ',sc.sch_last_time) AS movie -->
+<!-- 	 	,r.res_pay -->
+<!-- 	 	FROM  -->
+<!-- 	 	reservation r, schedule sc, screen sn -->
+<!-- 	 	WHERE r.res_sch_code = sc.sch_code -->
+<!-- 	 	AND r.res_screen_code = sn.screen_code -->
+<!-- 	 	AND r.res_id = #{id} -->
+
+<!-- 		종영된 영화도 조회 가능하게 수정  -->
+
+
+<!-- 		코드수정  -->
+
+		SELECT 
+			r.res_code,
+			DATE(r.res_paydate) AS res_paydate,
+			r.res_title,
+			r.res_cinema,
+			r.res_seat_name,
+			sn.screen_name,
+			COALESCE(sc.sch_movie_date, se.sch_movie_date) AS sch_movie_date,
+			CONCAT(TIME_FORMAT(COALESCE(sc.sch_start_time, se.sch_start_time), '%H:%i'), ' ~ ', 
+			TIME_FORMAT(COALESCE(sc.sch_last_time, se.sch_last_time), '%H:%i')) AS movie,
+			r.res_pay
+		FROM 
+			reservation r
+			LEFT JOIN schedule sc ON r.res_sch_code = sc.sch_code
+			LEFT JOIN screen sn ON r.res_screen_code = sn.screen_code
+			LEFT JOIN schedule_end se ON r.res_sch_code = se.end_sch_code
+		WHERE 
+			r.res_id = #{id} 
+		GROUP BY 
+			r.res_code,
+			r.res_paydate
+		ORDER BY r.res_code DESC
+
+
+  	</select>
+<!-- 			r.res_title, -->
+<!-- 			r.res_cinema, -->
+<!-- 			r.res_seat_num, -->
+<!-- 			sn.screen_name, -->
+<!-- 			sch_movie_date, -->
+<!-- 			movie, -->
+<!-- 			r.res_pay -->
+  	
+	<select id="resListByDate" resultType="hashmap">
+	    SELECT 
+	        r.res_code,
+	        r.res_paydate AS res_paydate,
+	        r.res_title,
+	        r.res_cinema,
+	        r.res_seat_name,
+	        sn.screen_name,
+	        COALESCE(sc.sch_movie_date, se.sch_movie_date) AS sch_movie_date,
+	        CONCAT(TIME_FORMAT(COALESCE(sc.sch_start_time, se.sch_start_time), '%H:%i'), ' ~ ', 
+	               TIME_FORMAT(COALESCE(sc.sch_last_time, se.sch_last_time), '%H:%i')) AS movie,
+	        r.res_pay
+	    FROM 
+	        reservation r
+	        LEFT JOIN schedule sc ON r.res_sch_code = sc.sch_code
+	        LEFT JOIN screen sn ON r.res_screen_code = sn.screen_code
+	        LEFT JOIN schedule_end se ON r.res_sch_code = se.end_sch_code
+	    WHERE 
+	        r.res_id = #{id} AND
+	        YEAR(DATE(r.res_paydate)) = #{year} AND
+	        MONTH(DATE(r.res_paydate)) = #{month}
+	    GROUP BY 
+	        r.res_code,
+	        r.res_paydate
+	    ORDER BY r.res_code DESC
+	</select>
+	
+<!--         r.res_title, -->
+<!--         r.res_cinema, -->
+<!--         r.res_seat_num, -->
+<!--         sn.screen_name, -->
+<!--         sch_movie_date, -->
+<!--         movie, -->
+<!--         r.res_pay -->
+
+  	
+  	
+
+  	
+  	
+	<select id="checkReview" resultType="hashmap" >
+	  SELECT rev_code
+	  FROM review 
+	  WHERE rev_id = #{id}
+	   AND rev_movie_code = (select res_movie_code
+							FROM reservation WHERE res_id = #{id}
+							ORDER BY res_code DESC LIMIT 1)
+	</select>
+	
+
+
+
+	<select id="likeList" resultType="hashmap">
+	  SELECT DISTINCT(m.info_movie_title) AS movie_title,
+	         CASE
+	             WHEN m.info_showdate = CURDATE() THEN CONCAT(' - ', '오늘 개봉')
+	             WHEN m.info_showdate > NOW() THEN CONCAT(' - ', DATEDIFF(m.info_showdate, NOW()), '일 후 개봉예정')
+	             ELSE ''
+	         END AS info_showdate,
+	         m.info_movie_code
+	         
+	  FROM movieinfo m
+	       JOIN like_movie l ON m.info_movie_code = l.like_movie_code
+	  WHERE l.like_id = #{id}
+	  ORDER BY ABS(DATEDIFF(m.info_showdate, NOW()))	
+	  LIMIT 5;
+	</select>
+
+
+	
+	<!-- 리뷰삭제  -->
+	<delete id="deleteReview"  >
+			DELETE 
+  			FROM review
+  			WHERE rev_code = #{rev_code}
+  			
+	</delete>
+	
+	<select id = "resMovie" resultType="hashmap">
+		SELECT res_title
+		FROM reservation 
+		WHERE res_id = #{id}
+		ORDER BY res_code DESC
+		LIMIT 1
+	</select>
+	
+	<select id="getPoint" resultType="int">
+		SELECT ROUND(sum(point_amount) OVER (ORDER BY point_code),0) AS point_sum
+		FROM point
+		WHERE point_id = #{id}
+	</select>
+
+	
+	
+  	
+</mapper>

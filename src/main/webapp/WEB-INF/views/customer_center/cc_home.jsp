@@ -21,7 +21,7 @@
 	rel="stylesheet">
 <script type="text/javascript">
 
-function search(idx) {
+function search(idx) {	// 더보기 5개 보여주기 위한 처음과 끝번호 설정
 	idx = parseInt(idx);
 	document.querySelector("input[name=startNum]").value = 0;
 	document.querySelector("input[name=endNum]").value = 5;
