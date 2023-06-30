@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itwillbs.movie.mapper.ReservationMapper">
+	<!-- 영화관 정보 -->
+	<select id="selectCinema" resultType="hashmap">
+		SELECT *
+			FROM
+				cinema
+	</select>
+
+	<!-- 영화정보 : 가나다순	 -->
+	<select id="selectMovieInfo" resultType="hashmap">
+		SELECT *
+			FROM 
+				movieinfo
+			ORDER BY 
+				info_movie_title ASC
+	</select>
+
+
+
+	<!-- 영화관 - 영화리스트 -->
+	<!-- 각 영화관에 상영하는 영화리스트 출력 -->
+	<!-- 영화제목, 영화코드, 포스터, 관람등급, 개봉일, 장르 -->
+	<select id="selectmoviesList" resultType="hashmap">
+		SELECT DISTINCT m.info_movie_title, m.info_movie_code, m.info_movie_poster, m.info_rating, m.info_showdate, m.info_genre
+			FROM 
+				cinema c
+			JOIN 
+				schedule s 
+			ON 
+				c.cinema_code = s.sch_cinema_code 
+			JOIN 
+				movieinfo m 
+			ON 
+				m.info_movie_code = s.sch_movie_code 
+			WHERE 
+				c.cinema_code = #{CnItemCd}
+	</select>
+	
+	<!-- 선호 장르 조회 -->
+	<select id="selectMemberPreferGenre" resultType="String">
+		SELECT member_prefer_genre
+			FROM 
+				MEMBER
+			WHERE 
+				member_id = #{id};
+	</select>
+	
+	<!-- 선호 장르 영화 리스트 -->
+	<select id="selectPreferMoviesList" resultType="hashmap">
+		SELECT distinct m.info_movie_title, m.info_movie_code, m.info_movie_poster, m.info_rating, m.info_showdate, m.info_genre
+			FROM 
+				cinema c
+			JOIN 
+				schedule s 
+			ON 
+				c.cinema_code = s.sch_cinema_code 
+			JOIN 
+				movieinfo m 
+			ON 
+				m.info_movie_code = s.sch_movie_code  
+			WHERE 
+				m.info_genre like CONCAT('%',#{preferGenre},'%')
+			AND 
+				c.cinema_code = #{CnItemCd}
+	</select>
+	
+	
+	<!-- 상영 시간 리스트 -->
+	<select id="selectMovieTimeList" resultType="hashmap">
+		SELECT  
+				sc.*
+			  , c.*
+			  , sch_code,sch_screen_code,sch_cinema_code,sch_movie_code,sch_movie_date
+			  , DATE_FORMAT(sd.sch_start_time, '%H:%i') as sch_start_time
+			  , DATE_FORMAT(sd.sch_last_time, '%H:%i') as sch_last_time
+			  , sd.seatCnt
+			FROM 
+				schedule sd
+			JOIN 
+				screen sc 
+		    ON 
+		    	sd.sch_screen_code = sc.screen_code
+		    JOIN 
+		    	cinema c 
+		    ON 
+		    	c.cinema_code = sd.sch_cinema_code
+		    WHERE 
+		    	c.cinema_code = #{CnItemCd} 
+		    AND 
+		    	sd.sch_movie_code = #{MvItemCd}
+		    AND 
+		    	sd.sch_movie_date like CONCAT('%',#{dateCd})
+		 	AND 
+		 		sd.sch_movie_date >= CURRENT_DATE() -- 현재 날짜 이후
+		    AND 
+		    	((sd.sch_movie_date = CURRENT_DATE() AND sd.sch_start_time >= CURRENT_TIME())
+		    OR 
+		    	sd.sch_movie_date > CURRENT_DATE()) -- 현재 시간 이후
+		    ORDER BY 
+		    	sd.sch_start_time ASC
+		    	
+		    
+	</select>
+	
+	<!-- 예매 좌석 조회 -->
+	<select id="selectReservationList" resultType="hashmap">
+		SELECT res_sch_code, res_seat_line, res_seat_num
+			FROM 
+				reservation
+			WHERE 
+				res_sch_code = #{schCd}
+	</select>
+	
+	<!-- 회원 정보 조회 -->
+	<select id="selectMemberId" resultType="hashmap">
+		SELECT * 
+			FROM 
+				member
+			WHERE 
+				member_id = #{id}
+	</select>
+	
+	<!-- 결제 후 예매 정보 추가 -->
+	<insert id="insertReservation">
+		INSERT 
+			INTO 
+				reservation
+			VALUES (
+				#{vo.resCode}
+				, #{id}
+				, #{vo.schCd}
+				, #{vo.MovieCd}
+				, #{vo.ScreenCd}
+				, #{vo.MovieDate}
+				, #{vo.MovieNm}
+				, #{vo.CinemaNm}
+				, #{vo.totalCnt}
+				, #{vo.totalAmt}
+				, #{vo.resPayment}
+				, #{vo.buyerTel}
+				, #{vo.resPayDone}
+				, now()
+				, #{vo.seatLine}
+				, #{vo.seatNum}
+				, #{vo.seatNm}
+			)
+	</insert>
+	
+	<!-- 영화 일정 별 좌석 수 갱신 -->
+	<update id="updateSchedule">
+		UPDATE schedule
+			SET 
+				seatCnt = seatCnt - #{seatCnt}
+			WHERE 
+				sch_code = #{schCd}
+	</update>
+	
+	<!-- 예매 후 포인트 적립 -->
+	<insert id="insertReservationPoint">
+		<selectKey order="BEFORE" keyProperty="point_code" resultType="int">
+			SELECT IFNULL(MAX(point_code), 0)
+				FROM 
+					point
+		</selectKey>
+		INSERT 
+			INTO 
+				point
+			VALUES (
+				#{point_code} + 1
+				, #{id}
+				, '예매 적립'
+				, #{totalAmt} * 0.1
+				, now()
+			)
+	
+	</insert>
+	
+	<!-- 예매 후 회원 포인트 갱신 -->
+	<update id="updateMemberPoint">
+		UPDATE member
+			SET
+				member_point = member_point + #{totalAmt} * 0.1
+			WHERE
+				member_id = #{id}
+	</update>
+	
+	<update id="updateresultPoint">
+		UPDATE member
+			SET
+				member_point = #{resultPoint}
+			WHERE
+				member_id = #{id}
+	</update>
+	
+	<!-- 회원 포인트 조회 -->
+	<select id="selectPoint" resultType="String">
+		SELECT member_point 
+			FROM 
+				member
+			WHERE member_id = #{id}
+	</select>
+	
+	<!-- 비회원 테이블 저장 -->
+	<insert id="insertNonMember">
+		INSERT
+			INTO 
+				nonmember 
+			VALUES (
+				  #{uuid}
+				, #{guestName}
+				, #{pass}
+				, #{phone}
+				, null
+			)
+	</insert>
+	
+	<!-- 상영 시간까지 남은 시간이 1시간 이내인 영화인지 확인 >> 테스트용으로 10시간 해둠-->
+	<select id="selectDiscount" resultType="String">
+		<![CDATA[
+		SELECT timediff(sch_start_time, current_time()) "timeDiff"
+			FROM 
+				schedule 
+			WHERE 
+				sch_movie_date = current_date() 
+			AND 
+				timediff(sch_start_time, current_time()) <= '01:00:00' 
+			AND 
+				timediff(sch_start_time, current_time()) > '00:00:00'
+			AND 
+				sch_code = #{schCD}
+		]]>
+	</select>
+	
+	
+</mapper>
