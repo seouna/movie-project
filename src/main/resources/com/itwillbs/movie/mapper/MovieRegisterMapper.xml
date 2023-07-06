@@ -513,7 +513,7 @@
 	</select>
 
 	<select id="endSchList" resultType="hashmap">
-		SELECT
+		SELECT DISTINCT
 			end_sch_code
 		  , sch_screen_code
 		  , sch_cinema_code
