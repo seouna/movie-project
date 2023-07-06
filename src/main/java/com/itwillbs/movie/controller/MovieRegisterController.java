@@ -576,10 +576,16 @@ public class MovieRegisterController {
 		List<HashMap<String, String>> movieList = movieRegisterService.selectMovies(startRow, listLimit);
 		List<HashMap<String, String>> cinemaList = movieRegisterService.selectCinema();
 		int ended_screening = movieRegisterService.ended_screening();
-		
+		System.out.println("ended_screening ----------------------");
+		System.out.println(ended_screening);
+		System.out.println("----------------------");
 		if(ended_screening > 0) {
 			int insertCount = movieRegisterService.insertSchedule_end();
+			System.out.println("insertCount ----------------------");
+			System.out.println(insertCount);
+			System.out.println("----------------------");
 			if (insertCount > 0) {
+				System.out.println("==========================");
 				int delCount = movieRegisterService.endSchedule_del();
 			}
 		}

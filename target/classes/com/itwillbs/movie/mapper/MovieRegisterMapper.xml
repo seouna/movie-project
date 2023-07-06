@@ -484,23 +484,23 @@
 	</select>
 
 	<insert id="insertSchedule_end">
-		INSERT INTO schedule_end
-		SELECT
-				  sch_code
-				, screen.screen_name
-				, cinema.cinema_name
-				, cinema.cinema_code
-				, movieinfo.info_movie_code
-				, movieinfo.info_movie_title
-				, sch_movie_date
-				, TIME_FORMAT(sch_start_time,'%H:%i')AS sch_start_time
-				, TIME_FORMAT(sch_last_time,'%H:%i')AS sch_last_time
-			FROM schedule
-				LEFT JOIN screen ON screen.screen_code = sch_screen_code
-				LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
-				LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code
-			WHERE sch_movie_date &lt; DATE_SUB(NOW(), INTERVAL 1 DAY)
-			ORDER BY sch_movie_date;
+		 <![CDATA[
+		    INSERT INTO schedule_end 
+		    SELECT 
+		        sch_code
+		      , screen.screen_name
+		      , cinema.cinema_name 
+		      , movieinfo.info_movie_title
+		      , sch_movie_date
+		      , TIME_FORMAT(sch_start_time,'%H:%i') AS sch_start_time
+		      , TIME_FORMAT(sch_last_time,'%H:%i') AS sch_last_time 
+		    FROM schedule
+		    LEFT JOIN screen ON screen.screen_code = sch_screen_code 
+		    LEFT JOIN cinema ON cinema.cinema_code = sch_cinema_code
+		    LEFT JOIN movieinfo ON movieinfo.info_movie_code = sch_movie_code	  
+		    WHERE sch_movie_date &lt; DATE_SUB(NOW(), INTERVAL 1 DAY) 
+		    ORDER BY sch_movie_date;
+		  ]]>
 	</insert>
 	<delete id="endSchedule_del">
 		DELETE FROM schedule
