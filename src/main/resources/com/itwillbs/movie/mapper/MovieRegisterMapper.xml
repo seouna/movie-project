@@ -480,7 +480,7 @@
 	<select id="ended_screening" resultType="int">
 		SELECT count(*)
 			FROM schedule
-				WHERE sch_movie_date &gt; DATE_SUB(NOW(), INTERVAL 1 DAY);
+				WHERE sch_movie_date &lt; DATE_SUB(NOW(), INTERVAL 1 DAY);
 	</select>
 
 	<insert id="insertSchedule_end">

@@ -579,7 +579,7 @@ public class MovieRegisterController {
 		System.out.println("ended_screening ----------------------");
 		System.out.println(ended_screening);
 		System.out.println("----------------------");
-		if(ended_screening > 0) {
+		if(ended_screening < 0) {
 			int insertCount = movieRegisterService.insertSchedule_end();
 			System.out.println("insertCount ----------------------");
 			System.out.println(insertCount);
